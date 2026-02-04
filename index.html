@@ -4,32 +4,6 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Dev: Vince</title>
-</head>
-<body>
-
-  <h1 class="center-text">Quiz tayu</h1>
-  <form class="quiz" id="quizForm">
-    <p>Alam mo yung Feeling na?</p>
-    <div class="pili-ka">
-      <input type="radio" id="greatest" name="age" value="greatest">
-      <label for="greatest">Greatest</label>
-
-      <input type="radio" id="gusto" name="age" value="gustong">
-      <label for="gusto">Gustong</label>
-
-      <input type="radio" id="mss" name="age" value="miss">
-      <label for="miss">Miss</label>
-    </div>
-
-    <input type="submit" value="Submit" class="btn-submit">
-
-    <div class="output-video">
-      <video id="video-greatest" src="greateswhite.mp4" controls></video>
-      <video id="video-gustong" src="gustosabi.mp4" controls></video>
-      <video id="video-miss" src="miss.mp4" controls></video>
-    </div>
-  </form>
-
   <style>
     * {
       margin: 0;
@@ -42,40 +16,39 @@
       background: rgb(222, 221, 221);
     }
 
- .quiz {
-  display: flex;
-  width: 100%;
-  max-width: 100vw;
-  height: auto;
-  justify-content: center;
-  align-items: center;
-  border: 10px solid;
-  border-image: conic-gradient(
-    red, orange, yellow, green, blue, indigo, violet, red
-  ) 1;
-  animation: rotateBorder 3s linear infinite;
-  flex-direction: column;
-  margin: 20px auto 0;
-  gap: 15px;
-  padding: 15px;
-}
+   .quiz {
+      display: flex;
+      width: 100%;
+      max-width: 100vw;
+      justify-content: center;
+      align-items: center;
+      border: 10px solid;
+      border-image: conic-gradient(
+        red, orange, yellow, green, blue, indigo, violet, red
+      ) 1;
+      animation: rotateBorder 3s linear infinite;
+      flex-direction: column;
+      margin: 20px auto 0;
+      gap: 15px;
+      padding: 15px;
+    }
 
-@keyframes rotateBorder {
-  0% {
-    border-image: conic-gradient(
-      red, orange, yellow, green, blue, indigo, violet, red
-    ) 1;
-  }
-  100% {
-    border-image: conic-gradient(
-      violet, red, orange, yellow, green, blue, indigo, violet
-    ) 1;
-  }
-}
+    @keyframes rotateBorder {
+      0% {
+        border-image: conic-gradient(
+          red, orange, yellow, green, blue, indigo, violet, red
+        ) 1;
+      }
+      100% {
+        border-image: conic-gradient(
+          violet, red, orange, yellow, green, blue, indigo, violet
+        ) 1;
+      }
+    }
 
     .pili-ka {
       display: flex;
-      gap: 15px;
+      gap: 10px;
       width: 100%;
       flex-wrap: wrap;
       justify-content: center;
@@ -84,15 +57,14 @@
     }
 
     .btn-submit {
-      width: 120px;
-      height: 40px;
+      width: 100px;
+      height: 35px;
       border: none;
       box-shadow: 0 0 5px rgb(255, 69, 69);
       background: rgb(238, 108, 108);
       color: white;
-      font-size: 16px;
+      font-size: 15px;
       cursor: pointer;
-      border-radius: 5px;
     }
 
     .center-text {
@@ -104,56 +76,80 @@
     /* Sukat ng video para katulad ng larawan */
     .output-video {
       width: 100%;
-      height: calc(100vw * 0.7); /* Proporsyon na katulad ng mobile screen video */
+      height: calc(100vw * 0.8); /* Proporsyon na katulad ng mobile video */
       margin-top: 10px;
+      background-color: #000;
       border-radius: 4px;
       overflow: hidden;
-      background-color: #000;
     }
 
     .output-video video {
       width: 100%;
       height: 100%;
-      object-fit: contain;
+      object-fit: contain; /* Para makita ang buong video tulad ng larawan */
       display: none;
     }
 
-    @media (max-width: 480px) {
+    @media (max-width: 768px) {
+      .quiz {
+        padding: 15px;
+      }
+
       .center-text {
         margin-top: 15px;
+        font-size: 22px;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .quiz {
+        padding: 10px;
+      }
+
+      .center-text {
+        margin-top: 10px;
         font-size: 20px;
       }
 
       .btn-submit {
         width: 100%;
+        height: 40px;
+        font-size: 16px;
       }
 
       .output-video {
-        height: calc(100vw * 0.8); /* Mas lapit sa sukat ng ipinakita mong video */
+        height: calc(100vw * 0.9); /* Mas lapit sa sukat ng ipinakita mong video */
       }
     }
   </style>
+</head>
+<body>
+
+  <h1 class="center-text">LOADER ONLY CODM</h1>
+  <form class="quiz" id="quizForm">
+    <p>Tutorial how to use Loader ASHESZ</p>
+    <div class="pili-ka">
+      <input type="radio" id="greatest" name="feeling" value="greatest" checked>
+      <label for="greatest">Click here</label>
+    </div>
+
+    <input type="submit" value="Submit" class="btn-submit">
+
+    <div class="output-video">
+      <video id="video-greatest" src="greateswhite.mp4" controls></video>
+    </div>
+  </form>
+
   <script>
     const form = document.getElementById("quizForm");
 
     form.addEventListener("submit", function(event) {
       event.preventDefault();
-
-      const videos = ["video-greatest", "video-gustong", "video-miss"];
-      videos.forEach(function(id) {
-        const vid = document.getElementById(id);
-        vid.style.display = "none";
-        vid.pause();
-      });
-
-      const selected = document.querySelector('input[name="age"]:checked');
-      if (selected) {
-        const videoId = "video-" + selected.value;
-        const selectedVideo = document.getElementById(videoId);
-        selectedVideo.style.display = "block";
-        selectedVideo.currentTime = 0;
-        selectedVideo.play();
-      }
+      
+      const selectedVideo = document.getElementById("video-greatest");
+      selectedVideo.style.display = "block";
+      selectedVideo.currentTime = 0;
+      selectedVideo.play();
     });
   </script>
 
