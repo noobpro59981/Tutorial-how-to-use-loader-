@@ -11,9 +11,58 @@
       box-sizing: border-box;
     }
 
+    /* Bagong background na may code theme */
     body {
-      font-family: Arial, sans-serif;
-      background: rgb(222, 221, 221);
+      font-family: 'Courier New', Courier, monospace; /* Code font para tugma */
+      background-color: #1e1e1e; /* Dark theme tulad ng VS Code */
+      color: #dcdcdc;
+      position: relative;
+      overflow-x: hidden;
+    }
+
+    /* Code lines effect sa background */
+    body::before {
+      content: '';
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-image: 
+        linear-gradient(rgba(30, 30, 30, 0.85) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(30, 30, 30, 0.85) 1px, transparent 1px);
+      background-size: 20px 20px;
+      z-index: -2;
+    }
+
+    /* Code text overlay sa background */
+    .code-bg {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: -1;
+      opacity: 0.15;
+      overflow: hidden;
+    }
+
+    .code-line {
+      color: #6a9955; /* Verde para sa comments */
+      margin: 4px 0;
+      padding-left: 25px;
+      font-size: 12px;
+      white-space: nowrap;
+      animation: scrollCode 60s linear infinite;
+    }
+
+    .code-line span.cpp { color: #569cd6; } /* Asul para sa C++ keywords */
+    .code-line span.css { color: #c586c0; } /* Lila para sa CSS keywords */
+    .code-line span.string { color: #ce9178; } /* Kayumanggi para sa strings */
+
+    @keyframes scrollCode {
+      0% { transform: translateY(0); }
+      100% { transform: translateY(-100%); }
     }
 
    .quiz {
@@ -31,6 +80,8 @@
       margin: 20px auto 0;
       gap: 15px;
       padding: 15px;
+      background-color: rgba(30, 30, 30, 0.9); /* Transparent dark para malinaw ang content */
+      border-radius: 8px;
     }
 
     @keyframes rotateBorder {
@@ -60,33 +111,55 @@
       width: 100px;
       height: 35px;
       border: none;
-      box-shadow: 0 0 5px rgb(255, 69, 69);
-      background: rgb(238, 108, 108);
+      box-shadow: 0 0 5px #ff4545;
+      background: #ee6c6c;
       color: white;
       font-size: 15px;
       cursor: pointer;
+      border-radius: 4px;
+      font-family: 'Courier New', Courier, monospace;
+    }
+
+    .btn-submit:hover {
+      background: #ff4545;
+      box-shadow: 0 0 8px #ff4545;
     }
 
     .center-text {
       text-align: center;
       margin-top: 20px;
-      font-size: 22px;
+      font-size: 24px;
+      font-weight: bold;
+      color: #569cd6; /* Asul para sa title tulad ng C++ keywords */
+      text-shadow: 0 0 5px rgba(86, 156, 214, 0.5);
+    }
+
+    p {
+      font-size: 16px;
+      color: #dcdcdc;
+      text-align: center;
+    }
+
+    label {
+      color: #9cdcfe;
+      font-family: 'Courier New', Courier, monospace;
     }
 
     /* Sukat ng video para katulad ng larawan */
     .output-video {
       width: 100%;
-      height: calc(100vw * 0.8); /* Proporsyon na katulad ng mobile video */
+      height: calc(100vw * 0.8);
       margin-top: 10px;
       background-color: #000;
       border-radius: 4px;
       overflow: hidden;
+      border: 2px solid #569cd6;
     }
 
     .output-video video {
       width: 100%;
       height: 100%;
-      object-fit: contain; /* Para makita ang buong video tulad ng larawan */
+      object-fit: contain;
       display: none;
     }
 
@@ -95,16 +168,18 @@
       margin-top: 10px;
       font-size: 16px;
       text-align: center;
+      font-family: 'Courier New', Courier, monospace;
     }
 
     .contact-owner a {
-      color: #0088cc;
+      color: #6a9955;
       text-decoration: none;
       font-weight: bold;
     }
 
     .contact-owner a:hover {
       text-decoration: underline;
+      color: #9cdcfe;
     }
 
     @media (max-width: 768px) {
@@ -135,16 +210,55 @@
       }
 
       .output-video {
-        height: calc(100vw * 0.9); /* Mas lapit sa sukat ng ipinakita mong video */
+        height: calc(100vw * 0.9);
       }
 
       .contact-owner {
         font-size: 15px;
       }
+
+      .code-line {
+        font-size: 10px;
+      }
     }
   </style>
 </head>
 <body>
+  <!-- Background code effect -->
+  <div class="code-bg">
+    <div class="code-line"><span class="cpp">#include</span> <span class="string">&lt;iostream&gt;</span></div>
+    <div class="code-line"><span class="cpp">#include</span> <span class="string">&lt;string&gt;</span></div>
+    <div class="code-line"><span class="cpp">using namespace</span> std;</div>
+    <div class="code-line"></div>
+    <div class="code-line"><span class="css">body {</span></div>
+    <div class="code-line">  <span class="css">background-color:</span> <span class="string">#1e1e1e;</span></div>
+    <div class="code-line">  <span class="css">font-family:</span> <span class="string">'Courier New', monospace;</span></div>
+    <div class="code-line"><span class="css">}</span></div>
+    <div class="code-line"></div>
+    <div class="code-line"><span class="cpp">int</span> <span class="cpp">main()</span> {</div>
+    <div class="code-line">  <span class="cpp">string</span> loader = <span class="string">"ASHESZ CODM LOADER"</span>;</div>
+    <div class="code-line">  cout &lt;&lt; loader &lt;&lt; endl;</div>
+    <div class="code-line">  <span class="cpp">return</span> 0;</div>
+    <div class="code-line">}</div>
+    <div class="code-line"></div>
+    <div class="code-line"><span class="css">.quiz {</span></div>
+    <div class="code-line">  <span class="css">border-image:</span> <span class="string">conic-gradient(red, orange, yellow, green, blue, indigo, violet) 1;</span></div>
+    <div class="code-line"><span class="css">}</span></div>
+    <div class="code-line"></div>
+    <div class="code-line"><span class="cpp">#include</span> <span class="string">&lt;vector&gt;</span></div>
+    <div class="code-line"><span class="cpp">void</span> <span class="cpp">showTutorial()</span> {</div>
+    <div class="code-line">  cout &lt;&lt; <span class="string">"Tutorial how to use Loader ASHESZ"</span> &lt;&lt; endl;</div>
+    <div class="code-line">}</div>
+    <div class="code-line"></div>
+    <div class="code-line"><span class="css">.btn-submit {</span></div>
+    <div class="code-line">  <span class="css">background:</span> <span class="string">#ee6c6c;</span></div>
+    <div class="code-line">  <span class="css">box-shadow:</span> <span class="string">0 0 5px #ff4545;</span></div>
+    <div class="code-line"><span class="css">}</span></div>
+    <!-- Ulitin ang ilang lines para sa mahabang scroll effect -->
+    <div class="code-line"><span class="cpp">#include</span> <span class="string">&lt;iostream&gt;</span></div>
+    <div class="code-line"><span class="cpp">#include</span> <span class="string">&lt;string&gt;</span></div>
+    <div class="code-line"><span class="cpp">using namespace</span> std;</div>
+  </div>
 
   <h1 class="center-text">LOADER ONLY CODM</h1>
   <form class="quiz" id="quizForm">
@@ -156,7 +270,7 @@
 
     <input type="submit" value="Submit" class="btn-submit">
 
-    <!-- Contact Owner Section na binago -->
+    <!-- Contact Owner Section -->
     <div class="contact-owner">
       Contact owner: <a href="https://t.me/Asheszconfig" target="_blank">@Asheszconfig</a>
     </div>
@@ -177,7 +291,24 @@
       selectedVideo.currentTime = 0;
       selectedVideo.play();
     });
+
+    // Gumawa ng dagdag na code lines para sa background
+    const codeBg = document.querySelector('.code-bg');
+    for(let i = 0; i < 10; i++) {
+      const newLine = document.createElement('div');
+      newLine.className = 'code-line';
+      if(i % 3 === 0) {
+        newLine.innerHTML = `<span class="cpp">cout &lt;&lt;</span> <span class="string">"COD MOBILE LOADER"</span> <span class="cpp">&lt;&lt; endl;</span>`;
+      } else if(i % 3 === 1) {
+        newLine.innerHTML = `<span class="css">.output-video video {</span>`;
+      } else {
+        newLine.innerHTML = `  <span class="css">object-fit:</span> <span class="string">contain;</span>`;
+      }
+      codeBg.appendChild(newLine);
+    }
   </script>
 
 </body>
 </html>
+
+  
