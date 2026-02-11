@@ -1,331 +1,199 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Vince Injector Online Panel</title>
-    <script>
-        // ONLINE KEY STORAGE (MA-BABASA NG INJECTOR)
-        let keyDatabase = [
-            { 
-                "key": "vincepogi", 
-                "validUntil": "2026-03-20 18:00:00", 
-                "blocked": false, 
-                "maxDevices": 3, 
-                "usedDevices": 0 
-            },
-            { 
-                "key": "vincefree", 
-                "validUntil": "2026-03-15 12:00:00", 
-                "blocked": false, 
-                "maxDevices": 2, 
-                "usedDevices": 0 
-            },
-            { 
-                "key": "vinceeee", 
-                "validUntil": "2026-04-20 18:30:00", 
-                "blocked": false, 
-                "maxDevices": 1, 
-                "usedDevices": 0 
-            }
-        ];
-
-        // I-SAVE ANG DATABASE SA PAGE PARA MABASA NG INJECTOR
-        function updateKeyData() {
-            document.getElementById('onlineKeyData').textContent = JSON.stringify(keyDatabase);
-            updateDisplay();
-        }
-
-        // GENERATE BAGONG KEY
-        function generateNewKey() {
-            const prefix = document.getElementById('prefixInput').value || 'VINCE-';
-            const type = document.querySelector('input[name="validityType"]:checked').value;
-            const length = parseInt(document.getElementById('lengthInput').value) || 30;
-
-            const random = Math.floor(Math.random() * 900000) + 100000;
-            const newKey = prefix + random;
-
-            let expires = new Date();
-            if (type === 'Days') expires.setDate(expires.getDate() + length);
-            if (type === 'Hours') expires.setHours(expires.getHours() + length);
-            if (type === 'Minutes') expires.setMinutes(expires.getMinutes() + length);
-            const validUntil = expires.toISOString().slice(0, 19).replace('T', ' ');
-
-            keyDatabase.push({
-                "key": newKey,
-                "validUntil": validUntil,
-                "blocked": false,
-                "maxDevices": parseInt(document.getElementById('devLimitInput').value) || 1,
-                "usedDevices": 0
-            });
-
-            updateKeyData();
-            alert("Key Generated: " + newKey);
-        }
-
-        // BLOCK/UNBLOCK KEY
-        function toggleBlock(keyToToggle) {
-            for (let i = 0; i < keyDatabase.length; i++) {
-                if (keyDatabase[i].key === keyToToggle) {
-                    keyDatabase[i].blocked = !keyDatabase[i].blocked;
-                    break;
-                }
-            }
-            updateKeyData();
-        }
-
-        // UPDATE DEVICE COUNT
-        function updateDeviceCount(keyToUpdate) {
-            for (let i = 0; i < keyDatabase.length; i++) {
-                if (keyDatabase[i].key === keyToUpdate && keyDatabase[i].usedDevices < keyDatabase[i].maxDevices) {
-                    keyDatabase[i].usedDevices += 1;
-                    break;
-                }
-            }
-            updateKeyData();
-        }
-
-        // DELETE KEY
-        function deleteKey(keyToDelete) {
-            keyDatabase = keyDatabase.filter(item => item.key !== keyToDelete);
-            updateKeyData();
-            alert("Key Deleted Successfully!");
-        }
-
-        // EDIT KEY DETAILS
-        function editKey(keyToEdit) {
-            const newMaxDevices = prompt("Enter new Max Devices limit:", keyDatabase.find(item => item.key === keyToEdit).maxDevices);
-            const newValidityType = prompt("Enter new Validity Type (Days/Hours):", "Days");
-            const newValidityLength = prompt("Enter new Validity Length:", 30);
-            
-            if (newMaxDevices && newValidityType && newValidityLength) {
-                let expires = new Date();
-                if (newValidityType === 'Days') expires.setDate(expires.getDate() + parseInt(newValidityLength));
-                if (newValidityType === 'Hours') expires.setHours(expires.getHours() + parseInt(newValidityLength));
-                const newValidUntil = expires.toISOString().slice(0, 19).replace('T', ' ');
-
-                for (let i = 0; i < keyDatabase.length; i++) {
-                    if (keyDatabase[i].key === keyToEdit) {
-                        keyDatabase[i].maxDevices = parseInt(newMaxDevices);
-                        keyDatabase[i].validUntil = newValidUntil;
-                        break;
-                    }
-                }
-                updateKeyData();
-                alert("Key Updated Successfully!");
-            }
-        }
-
-        // I-PAKITA ANG MGA KEY SA TABLE
-        function updateDisplay() {
-            let table = document.getElementById('keyTable');
-            table.innerHTML = '';
-            let header = table.insertRow();
-            header.style.background = '#062';
-            header.innerHTML = `
-                <th>KEY</th>
-                <th>VALID UNTIL</th>
-                <th>DEVICE LIMIT</th>
-                <th>USED DEVICES</th>
-                <th>STATUS</th>
-                <th>ACTIONS</th>
-            `;
-
-            keyDatabase.forEach(item => {
-                let row = table.insertRow();
-                row.style.background = item.blocked ? '#300' : '#030';
-                row.innerHTML = `
-                    <td>${item.key}</td>
-                    <td>${item.validUntil}</td>
-                    <td>${item.maxDevices}</td>
-                    <td>${item.usedDevices}</td>
-                    <td>${item.blocked ? '🔴 BLOCKED' : '🟢 ACTIVE'}</td>
-                    <td style="display:flex; gap:5px;">
-                        <button onclick="toggleBlock('${item.key}')" style="background:${item.blocked ? '#4CAF50' : '#f44336'};color:white; border:none; padding:5px 8px; cursor:pointer;">
-                            ${item.blocked ? 'UNBLOCK' : 'BLOCK'}
-                        </button>
-                        <button onclick="editKey('${item.key}')" style="background:#007bff; color:white; border:none; padding:5px 8px; cursor:pointer;">
-                            EDIT
-                        </button>
-                        <button onclick="deleteKey('${item.key}')" style="background:#dc3545; color:white; border:none; padding:5px 8px; cursor:pointer;">
-                            DELETE
-                        </button>
-                    </td>
-                `;
-            });
-
-            // I-PAKITA ANG LATEST KEY
-            let latest = keyDatabase[keyDatabase.length - 1];
-            document.getElementById('generatedKey').textContent = latest.key;
-            document.getElementById('validUntil').textContent = latest.validUntil;
-        }
-
-        // I-LOAD LAHAT KAPAG BUKAS ANG PAGE
-        window.onload = function() {
-            updateKeyData();
-        };
-    </script>
+    <title>ALP KEY CONTROL PANEL</title>
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: 'Arial', sans-serif;
+            font-family: Arial, sans-serif;
         }
         body {
-            background: #000;
-            color: #0f0;
+            background: #1a1a1a;
+            color: #fff;
             padding: 20px;
-            background-image: linear-gradient(to bottom, #0a0a0a, #000);
-            min-height: 100vh;
+            max-width: 800px;
+            margin: 0 auto;
         }
         h1 {
+            color: #00ff9d;
             text-align: center;
-            color: #0ff;
             margin-bottom: 30px;
-            text-shadow: 0 0 10px #0ff;
-            font-size: 28px;
         }
-        .panel-container {
-            max-width: 1000px;
-            margin: 0 auto;
-            border: 2px solid #0ff;
-            border-radius: 15px;
-            background: #0a0a0a;
-            padding: 25px;
-            box-shadow: 0 0 20px rgba(0, 255, 255, 0.3);
-        }
-        .section-title {
-            color: #0f0;
-            margin-bottom: 15px;
-            font-size: 20px;
-            border-bottom: 1px solid #0f0;
-            padding-bottom: 5px;
-        }
-        .generate-section {
-            background: #080808;
+        .section {
+            background: #2d2d2d;
             padding: 20px;
             border-radius: 10px;
-            margin-bottom: 25px;
-            border: 1px solid #0f0;
+            margin-bottom: 20px;
+            border: 1px solid #00ff9d;
         }
-        .form-group {
-            margin: 12px 0;
+        .section-title {
+            color: #00ccff;
+            margin-bottom: 15px;
+            font-size: 18px;
         }
         label {
             display: block;
-            margin-bottom: 5px;
-            font-weight: bold;
+            margin: 10px 0 5px;
+            color: #00ff9d;
         }
         input[type="text"], input[type="number"] {
             width: 100%;
             padding: 8px;
-            background: #000;
-            color: #0f0;
-            border: 1px solid #0f0;
+            background: #1a1a1a;
+            color: #fff;
+            border: 1px solid #00ff9d;
             border-radius: 5px;
-            font-size: 16px;
         }
-        input[type="radio"] {
-            margin-right: 8px;
-            accent-color: #0f0;
-        }
-        .generate-btn {
-            background: #062;
-            color: #0f0;
-            border: 1px solid #0f0;
-            padding: 10px 20px;
+        .btn {
+            background: #00ccff;
+            color: #1a1a1a;
+            border: none;
+            padding: 10px 15px;
             border-radius: 5px;
-            font-size: 16px;
             cursor: pointer;
+            font-weight: bold;
             margin-top: 10px;
-            transition: all 0.3s ease;
         }
-        .generate-btn:hover {
-            background: #083;
-            box-shadow: 0 0 10px rgba(0, 255, 0, 0.5);
-        }
-        .latest-key-section {
-            background: #080808;
-            padding: 20px;
-            border-radius: 10px;
-            margin-bottom: 25px;
-            border: 1px solid #0f0;
-        }
-        .latest-key-section p {
-            font-size: 16px;
-            margin: 8px 0;
-        }
-        .latest-key-section strong {
-            color: #0ff;
-        }
-        .keys-table-section {
-            background: #080808;
-            padding: 20px;
-            border-radius: 10px;
-            border: 1px solid #0f0;
-        }
-        #keyTable {
-            width: 100%;
-            border-collapse: collapse;
+        .btn-delete { background: #ff4444; color: #fff; }
+        .key-list {
             margin-top: 15px;
-        }
-        #keyTable th, #keyTable td {
-            border: 1px solid #0f0;
             padding: 10px;
-            text-align: left;
+            background: #1a1a1a;
+            border: 1px solid #00ff9d;
+            border-radius: 5px;
         }
-        #keyTable th {
-            color: #0ff;
+        .key-item {
+            padding: 8px;
+            margin: 5px 0;
+            background: #2d2d2d;
+            border-radius: 3px;
         }
-        hr {
-            border: 1px solid #0f0;
-            margin: 25px 0;
+        .status-active { color: #00ff9d; }
+        .status-inactive { color: #ff4444; }
+        #databaseDisplay {
+            display: none; /* HIDDEN FOR INJECTOR TO READ */
         }
     </style>
 </head>
 <body>
-    <div class="panel-container">
-        <h1>🔐 VINCE INJECTOR ONLINE CONTROL PANEL</h1>
+    <h1>🔐 ALP ONLINE KEY DATABASE</h1>
 
-        <!-- KEY GENERATOR SECTION -->
-        <div class="generate-section">
-            <h3 class="section-title">✨ Generate New Key</h3>
-            <div class="form-group">
-                <label>Key Prefix</label>
-                <input type="text" id="prefixInput" placeholder="Hal: VINCE-NEW-, VIP-">
-            </div>
-            <div class="form-group">
-                <label>Set Validity Type</label><br>
-                <input type="radio" name="validityType" value="Days" checked> Days<br>
-                <input type="radio" name="validityType" value="Hours"> Hours<br>
-                <input type="radio" name="validityType" value="Minutes"> Minutes
-            </div>
-            <div class="form-group">
-                <label>Validity Length</label>
-                <input type="number" id="lengthInput" min="1" value="30" placeholder="Enter number (e.g., 7 for 7 Days)">
-            </div>
-            <div class="form-group">
-                <label>Max Devices Allowed</label>
-                <input type="number" id="devLimitInput" min="1" value="1" placeholder="Enter device limit">
-            </div>
-            <button class="generate-btn" onclick="generateNewKey()">Generate New Key</button>
-        </div>
+    <!-- KEY GENERATOR SECTION -->
+    <div class="section">
+        <div class="section-title">✨ GENERATE NEW KEY</div>
+        <label for="keyName">Key Name (Hal: vincepogi, ALP-VIP)</label>
+        <input type="text" id="keyName" placeholder="Isulat ang eksaktong pangalan ng key">
 
-        <!-- LATEST KEY DISPLAY -->
-        <div class="latest-key-section">
-            <h3 class="section-title">📌 Latest Generated Key</h3>
-            <p>Generated Key: <strong>- <span id="generatedKey">Wala pa pong key na nabuo</span> -</strong></p>
-            <p>Valid Until: <strong>- <span id="validUntil">Wala pa</span> -</strong></p>
-        </div>
+        <label for="maxDevices">Max Devices Allowed</label>
+        <input type="number" id="maxDevices" min="1" value="3">
 
-        <!-- ALL KEYS TABLE -->
-        <div class="keys-table-section">
-            <h3 class="section-title">📋 ALL ONLINE KEYS</h3>
-            <table id="keyTable" cellpadding="8" cellspacing="0" width="100%"></table>
-        </div>
+        <label for="validDays">Validity (Days)</label>
+        <input type="number" id="validDays" min="1" value="30">
 
-        <!-- IMPORTANTE: INJECTOR MAGBABASA DITO -->
-        <div id="onlineKeyData" style="display:none;"></div>
+        <button class="btn" onclick="generateKey()">GENERATE KEY</button>
     </div>
+
+    <!-- KEY DATABASE DISPLAY -->
+    <div class="section">
+        <div class="section-title">📋 ONLINE KEY DATABASE</div>
+        <div class="key-list" id="keyList">
+            <!-- DEFAULT KEY: vincepogi -->
+            <div class="key-item">
+                <strong>Key:</strong> vincepogi | 
+                <strong>Max Devices:</strong> 3 | 
+                <strong>Valid Until:</strong> 2026-12-31 23:59:00 | 
+                <strong>Status:</strong> <span class="status-active">ACTIVE</span>
+                <button class="btn btn-delete" onclick="deleteKey('vincepogi')">DELETE</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- HIDDEN DATABASE FOR INJECTOR -->
+    <div id="databaseDisplay">
+        [
+            {
+                "key": "vincepogi",
+                "validUntil": "2026-12-31 23:59:00",
+                "maxDevices": 3,
+                "usedDevices": 0,
+                "active": true
+            }
+        ]
+    </div>
+
+    <script>
+        // LOAD DATABASE FROM HIDDEN DIV
+        let keyDatabase = JSON.parse(document.getElementById('databaseDisplay').textContent);
+
+        // UPDATE DISPLAY & DATABASE
+        function updateDatabase() {
+            // UPDATE KEY LIST UI
+            let keyList = document.getElementById('keyList');
+            keyList.innerHTML = "";
+            keyDatabase.forEach(key => {
+                let item = document.createElement('div');
+                item.className = "key-item";
+                item.innerHTML = `
+                    <strong>Key:</strong> ${key.key} | 
+                    <strong>Max Devices:</strong> ${key.maxDevices} | 
+                    <strong>Valid Until:</strong> ${key.validUntil} | 
+                    <strong>Status:</strong> <span class="${key.active ? 'status-active' : 'status-inactive'}">${key.active ? 'ACTIVE' : 'INACTIVE'}</span>
+                    <button class="btn btn-delete" onclick="deleteKey('${key.key}')">DELETE</button>
+                `;
+                keyList.appendChild(item);
+            });
+
+            // UPDATE HIDDEN DATABASE
+            document.getElementById('databaseDisplay').textContent = JSON.stringify(keyDatabase);
+        }
+
+        // GENERATE NEW KEY
+        function generateKey() {
+            let keyName = document.getElementById('keyName').value.trim();
+            let maxDevices = parseInt(document.getElementById('maxDevices').value) || 1;
+            let validDays = parseInt(document.getElementById('validDays').value) || 30;
+
+            if (!keyName) {
+                alert("Isulat muna ang pangalan ng key!");
+                return;
+            }
+
+            // CHECK IF KEY ALREADY EXISTS
+            let existingKey = keyDatabase.find(k => k.key === keyName);
+            if (existingKey) {
+                alert("Key na ito ay mayroon na sa database!");
+                return;
+            }
+
+            // CALCULATE VALID UNTIL
+            let validUntil = new Date();
+            validUntil.setDate(validUntil.getDate() + validDays);
+            validUntil = validUntil.toISOString().slice(0, 19).replace('T', ' ');
+
+            // ADD TO DATABASE
+            keyDatabase.push({
+                key: keyName,
+                validUntil: validUntil,
+                maxDevices: maxDevices,
+                usedDevices: 0,
+                active: true
+            });
+
+            updateDatabase();
+            alert("Key na '" + keyName + "' ay naidagdag sa database!");
+            document.getElementById('keyName').value = "";
+        }
+
+        // DELETE KEY
+        function deleteKey(keyToDelete) {
+            if (!confirm("Sigurado ka bang gusto mong tanggalin ang key na '" + keyToDelete + "'?")) return;
+            keyDatabase = keyDatabase.filter(k => k.key !== keyToDelete);
+            updateDatabase();
+            alert("Key na '" + keyToDelete + "' ay naalis sa database!");
+        }
+    </script>
 </body>
 </html>
 
