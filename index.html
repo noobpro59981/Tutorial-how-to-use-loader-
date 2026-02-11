@@ -83,31 +83,70 @@
             updateKeyData();
         }
 
+        // DELETE KEY
+        function deleteKey(keyToDelete) {
+            keyDatabase = keyDatabase.filter(item => item.key !== keyToDelete);
+            updateKeyData();
+            alert("Key Deleted Successfully!");
+        }
+
+        // EDIT KEY DETAILS
+        function editKey(keyToEdit) {
+            const newMaxDevices = prompt("Enter new Max Devices limit:", keyDatabase.find(item => item.key === keyToEdit).maxDevices);
+            const newValidityType = prompt("Enter new Validity Type (Days/Hours):", "Days");
+            const newValidityLength = prompt("Enter new Validity Length:", 30);
+            
+            if (newMaxDevices && newValidityType && newValidityLength) {
+                let expires = new Date();
+                if (newValidityType === 'Days') expires.setDate(expires.getDate() + parseInt(newValidityLength));
+                if (newValidityType === 'Hours') expires.setHours(expires.getHours() + parseInt(newValidityLength));
+                const newValidUntil = expires.toISOString().slice(0, 19).replace('T', ' ');
+
+                for (let i = 0; i < keyDatabase.length; i++) {
+                    if (keyDatabase[i].key === keyToEdit) {
+                        keyDatabase[i].maxDevices = parseInt(newMaxDevices);
+                        keyDatabase[i].validUntil = newValidUntil;
+                        break;
+                    }
+                }
+                updateKeyData();
+                alert("Key Updated Successfully!");
+            }
+        }
+
         // I-PAKITA ANG MGA KEY SA TABLE
         function updateDisplay() {
             let table = document.getElementById('keyTable');
             table.innerHTML = '';
             let header = table.insertRow();
+            header.style.background = '#062';
             header.innerHTML = `
                 <th>KEY</th>
                 <th>VALID UNTIL</th>
                 <th>DEVICE LIMIT</th>
                 <th>USED DEVICES</th>
                 <th>STATUS</th>
-                <th>ACTION</th>
+                <th>ACTIONS</th>
             `;
 
             keyDatabase.forEach(item => {
                 let row = table.insertRow();
+                row.style.background = item.blocked ? '#300' : '#030';
                 row.innerHTML = `
                     <td>${item.key}</td>
                     <td>${item.validUntil}</td>
                     <td>${item.maxDevices}</td>
                     <td>${item.usedDevices}</td>
                     <td>${item.blocked ? '🔴 BLOCKED' : '🟢 ACTIVE'}</td>
-                    <td>
-                        <button onclick="toggleBlock('${item.key}')" style="background:${item.blocked ? '#4CAF50' : '#f44336'};color:white;">
+                    <td style="display:flex; gap:5px;">
+                        <button onclick="toggleBlock('${item.key}')" style="background:${item.blocked ? '#4CAF50' : '#f44336'};color:white; border:none; padding:5px 8px; cursor:pointer;">
                             ${item.blocked ? 'UNBLOCK' : 'BLOCK'}
+                        </button>
+                        <button onclick="editKey('${item.key}')" style="background:#007bff; color:white; border:none; padding:5px 8px; cursor:pointer;">
+                            EDIT
+                        </button>
+                        <button onclick="deleteKey('${item.key}')" style="background:#dc3545; color:white; border:none; padding:5px 8px; cursor:pointer;">
+                            DELETE
                         </button>
                     </td>
                 `;
@@ -124,35 +163,169 @@
             updateKeyData();
         };
     </script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Arial', sans-serif;
+        }
+        body {
+            background: #000;
+            color: #0f0;
+            padding: 20px;
+            background-image: linear-gradient(to bottom, #0a0a0a, #000);
+            min-height: 100vh;
+        }
+        h1 {
+            text-align: center;
+            color: #0ff;
+            margin-bottom: 30px;
+            text-shadow: 0 0 10px #0ff;
+            font-size: 28px;
+        }
+        .panel-container {
+            max-width: 1000px;
+            margin: 0 auto;
+            border: 2px solid #0ff;
+            border-radius: 15px;
+            background: #0a0a0a;
+            padding: 25px;
+            box-shadow: 0 0 20px rgba(0, 255, 255, 0.3);
+        }
+        .section-title {
+            color: #0f0;
+            margin-bottom: 15px;
+            font-size: 20px;
+            border-bottom: 1px solid #0f0;
+            padding-bottom: 5px;
+        }
+        .generate-section {
+            background: #080808;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 25px;
+            border: 1px solid #0f0;
+        }
+        .form-group {
+            margin: 12px 0;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        input[type="text"], input[type="number"] {
+            width: 100%;
+            padding: 8px;
+            background: #000;
+            color: #0f0;
+            border: 1px solid #0f0;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+        input[type="radio"] {
+            margin-right: 8px;
+            accent-color: #0f0;
+        }
+        .generate-btn {
+            background: #062;
+            color: #0f0;
+            border: 1px solid #0f0;
+            padding: 10px 20px;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+            margin-top: 10px;
+            transition: all 0.3s ease;
+        }
+        .generate-btn:hover {
+            background: #083;
+            box-shadow: 0 0 10px rgba(0, 255, 0, 0.5);
+        }
+        .latest-key-section {
+            background: #080808;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 25px;
+            border: 1px solid #0f0;
+        }
+        .latest-key-section p {
+            font-size: 16px;
+            margin: 8px 0;
+        }
+        .latest-key-section strong {
+            color: #0ff;
+        }
+        .keys-table-section {
+            background: #080808;
+            padding: 20px;
+            border-radius: 10px;
+            border: 1px solid #0f0;
+        }
+        #keyTable {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+        #keyTable th, #keyTable td {
+            border: 1px solid #0f0;
+            padding: 10px;
+            text-align: left;
+        }
+        #keyTable th {
+            color: #0ff;
+        }
+        hr {
+            border: 1px solid #0f0;
+            margin: 25px 0;
+        }
+    </style>
 </head>
-<body style="background:#1a1a1a;color:white;padding:20px;font-family:Arial;">
-    <h1>🔐 VINCE INJECTOR ONLINE PANEL</h1>
+<body>
+    <div class="panel-container">
+        <h1>🔐 VINCE INJECTOR ONLINE CONTROL PANEL</h1>
 
-    <!-- KEY GENERATOR SECTION -->
-    <h3>✨ Generate New Key:</h3>
-    <div>Key Prefix: <input type="text" id="prefixInput" placeholder="Hal: VINCE-NEW-"></div>
-    <div>
-        Set Validity Type:<br>
-        <input type="radio" name="validityType" value="Days" checked> Days<br>
-        <input type="radio" name="validityType" value="Hours"> Hours<br>
-        <input type="radio" name="validityType" value="Minutes"> Minutes
+        <!-- KEY GENERATOR SECTION -->
+        <div class="generate-section">
+            <h3 class="section-title">✨ Generate New Key</h3>
+            <div class="form-group">
+                <label>Key Prefix</label>
+                <input type="text" id="prefixInput" placeholder="Hal: VINCE-NEW-, VIP-">
+            </div>
+            <div class="form-group">
+                <label>Set Validity Type</label><br>
+                <input type="radio" name="validityType" value="Days" checked> Days<br>
+                <input type="radio" name="validityType" value="Hours"> Hours<br>
+                <input type="radio" name="validityType" value="Minutes"> Minutes
+            </div>
+            <div class="form-group">
+                <label>Validity Length</label>
+                <input type="number" id="lengthInput" min="1" value="30" placeholder="Enter number (e.g., 7 for 7 Days)">
+            </div>
+            <div class="form-group">
+                <label>Max Devices Allowed</label>
+                <input type="number" id="devLimitInput" min="1" value="1" placeholder="Enter device limit">
+            </div>
+            <button class="generate-btn" onclick="generateNewKey()">Generate New Key</button>
+        </div>
+
+        <!-- LATEST KEY DISPLAY -->
+        <div class="latest-key-section">
+            <h3 class="section-title">📌 Latest Generated Key</h3>
+            <p>Generated Key: <strong>- <span id="generatedKey">Wala pa pong key na nabuo</span> -</strong></p>
+            <p>Valid Until: <strong>- <span id="validUntil">Wala pa</span> -</strong></p>
+        </div>
+
+        <!-- ALL KEYS TABLE -->
+        <div class="keys-table-section">
+            <h3 class="section-title">📋 ALL ONLINE KEYS</h3>
+            <table id="keyTable" cellpadding="8" cellspacing="0" width="100%"></table>
+        </div>
+
+        <!-- IMPORTANTE: INJECTOR MAGBABASA DITO -->
+        <div id="onlineKeyData" style="display:none;"></div>
     </div>
-    <div>Validity Length: <input type="number" id="lengthInput" min="1" value="30"></div>
-    <div>Max Devices Allowed: <input type="number" id="devLimitInput" min="1" value="1"></div>
-    <button onclick="generateNewKey()" style="margin:10px 0;padding:8px;">Generate New Key</button>
-
-    <!-- LATEST KEY DISPLAY -->
-    <hr>
-    <h3>📌 Latest Generated Key:</h3>
-    <p>Generated Key: <strong>- <span id="generatedKey">Wala pa pong key na nabuo</span> -</strong></p>
-    <p>Valid Until: <strong>- <span id="validUntil">Wala pa</span> -</strong></p>
-
-    <!-- ALL KEYS TABLE -->
-    <hr>
-    <h3>📋 ALL ONLINE KEYS:</h3>
-    <table id="keyTable" border="1" cellpadding="8" cellspacing="0" width="100%"></table>
-
-    <!-- IMPORTANTE: INJECTOR MAGBABASA DITO -->
-    <div id="onlineKeyData" style="display:none;"></div>
 </body>
 </html>
+
