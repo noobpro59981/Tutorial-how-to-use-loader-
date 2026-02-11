@@ -1,314 +1,276 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="fil">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Dev: Vince</title>
-  <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
-
-    /* Bagong background na may code theme */
-    body {
-      font-family: 'Courier New', Courier, monospace; /* Code font para tugma */
-      background-color: #1e1e1e; /* Dark theme tulad ng VS Code */
-      color: #dcdcdc;
-      position: relative;
-      overflow-x: hidden;
-    }
-
-    /* Code lines effect sa background */
-    body::before {
-      content: '';
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background-image: 
-        linear-gradient(rgba(30, 30, 30, 0.85) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(30, 30, 30, 0.85) 1px, transparent 1px);
-      background-size: 20px 20px;
-      z-index: -2;
-    }
-
-    /* Code text overlay sa background */
-    .code-bg {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      z-index: -1;
-      opacity: 0.15;
-      overflow: hidden;
-    }
-
-    .code-line {
-      color: #6a9955; /* Verde para sa comments */
-      margin: 4px 0;
-      padding-left: 25px;
-      font-size: 12px;
-      white-space: nowrap;
-      animation: scrollCode 60s linear infinite;
-    }
-
-    .code-line span.cpp { color: #569cd6; } /* Asul para sa C++ keywords */
-    .code-line span.css { color: #c586c0; } /* Lila para sa CSS keywords */
-    .code-line span.string { color: #ce9178; } /* Kayumanggi para sa strings */
-
-    @keyframes scrollCode {
-      0% { transform: translateY(0); }
-      100% { transform: translateY(-100%); }
-    }
-
-   .quiz {
-      display: flex;
-      width: 100%;
-      max-width: 100vw;
-      justify-content: center;
-      align-items: center;
-      border: 10px solid;
-      border-image: conic-gradient(
-        red, orange, yellow, green, blue, indigo, violet, red
-      ) 1;
-      animation: rotateBorder 3s linear infinite;
-      flex-direction: column;
-      margin: 20px auto 0;
-      gap: 15px;
-      padding: 15px;
-      background-color: rgba(30, 30, 30, 0.9); /* Transparent dark para malinaw ang content */
-      border-radius: 8px;
-    }
-
-    @keyframes rotateBorder {
-      0% {
-        border-image: conic-gradient(
-          red, orange, yellow, green, blue, indigo, violet, red
-        ) 1;
-      }
-      100% {
-        border-image: conic-gradient(
-          violet, red, orange, yellow, green, blue, indigo, violet
-        ) 1;
-      }
-    }
-
-    .pili-ka {
-      display: flex;
-      gap: 10px;
-      width: 100%;
-      flex-wrap: wrap;
-      justify-content: center;
-      align-items: center;
-      padding: 10px;
-    }
-
-    .btn-submit {
-      width: 100px;
-      height: 35px;
-      border: none;
-      box-shadow: 0 0 5px #ff4545;
-      background: #ee6c6c;
-      color: white;
-      font-size: 15px;
-      cursor: pointer;
-      border-radius: 4px;
-      font-family: 'Courier New', Courier, monospace;
-    }
-
-    .btn-submit:hover {
-      background: #ff4545;
-      box-shadow: 0 0 8px #ff4545;
-    }
-
-    .center-text {
-      text-align: center;
-      margin-top: 20px;
-      font-size: 24px;
-      font-weight: bold;
-      color: #569cd6; /* Asul para sa title tulad ng C++ keywords */
-      text-shadow: 0 0 5px rgba(86, 156, 214, 0.5);
-    }
-
-    p {
-      font-size: 16px;
-      color: #dcdcdc;
-      text-align: center;
-    }
-
-    label {
-      color: #9cdcfe;
-      font-family: 'Courier New', Courier, monospace;
-    }
-
-    /* Sukat ng video para katulad ng larawan */
-    .output-video {
-      width: 100%;
-      height: calc(100vw * 0.8);
-      margin-top: 10px;
-      background-color: #000;
-      border-radius: 4px;
-      overflow: hidden;
-      border: 2px solid #569cd6;
-    }
-
-    .output-video video {
-      width: 100%;
-      height: 100%;
-      object-fit: contain;
-      display: none;
-    }
-
-    /* Style para sa contact section */
-    .contact-owner {
-      margin-top: 10px;
-      font-size: 16px;
-      text-align: center;
-      font-family: 'Courier New', Courier, monospace;
-    }
-
-    .contact-owner a {
-      color: #6a9955;
-      text-decoration: none;
-      font-weight: bold;
-    }
-
-    .contact-owner a:hover {
-      text-decoration: underline;
-      color: #9cdcfe;
-    }
-
-    @media (max-width: 768px) {
-      .quiz {
-        padding: 15px;
-      }
-
-      .center-text {
-        margin-top: 15px;
-        font-size: 22px;
-      }
-    }
-
-    @media (max-width: 480px) {
-      .quiz {
-        padding: 10px;
-      }
-
-      .center-text {
-        margin-top: 10px;
-        font-size: 20px;
-      }
-
-      .btn-submit {
-        width: 100%;
-        height: 40px;
-        font-size: 16px;
-      }
-
-      .output-video {
-        height: calc(100vw * 0.9);
-      }
-
-      .contact-owner {
-        font-size: 15px;
-      }
-
-      .code-line {
-        font-size: 10px;
-      }
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Key Manager Panel</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+        body {
+            padding: 20px;
+            max-width: 700px;
+            margin: 0 auto;
+            background: #f0f2f5;
+        }
+        .panel {
+            background: white;
+            padding: 25px;
+            margin: 15px 0;
+            border-radius: 10px;
+            box-shadow: 0 3px 6px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #1a73e8;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        h2 {
+            color: #202124;
+            margin-bottom: 15px;
+            font-size: 18px;
+            border-left: 4px solid #1a73e8;
+            padding-left: 10px;
+        }
+        label {
+            display: block;
+            margin: 12px 0 5px;
+            font-weight: 500;
+            color: #5f6368;
+        }
+        input, button {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #dadce0;
+            border-radius: 6px;
+            font-size: 16px;
+        }
+        input:focus {
+            outline: none;
+            border-color: #1a73e8;
+            box-shadow: 0 0 0 2px rgba(26,115,232,0.2);
+        }
+        button {
+            background: #1a73e8;
+            color: white;
+            border: none;
+            cursor: pointer;
+            margin-top: 10px;
+            font-weight: 500;
+        }
+        button:hover {
+            background: #1557b0;
+        }
+        .output-area {
+            margin-top: 15px;
+            padding: 12px;
+            background: #f8fafc;
+            border-radius: 6px;
+            word-break: break-all;
+            border: 1px solid #e2e8f0;
+        }
+        .output-area strong {
+            color: #202124;
+        }
+        .blocked-keys-list {
+            margin-top: 15px;
+            list-style: none;
+        }
+        .blocked-keys-list li {
+            padding: 10px;
+            background: #ffebea;
+            margin: 8px 0;
+            border-radius: 6px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border: 1px solid #fecdd3;
+        }
+        .unblock-btn {
+            width: auto;
+            padding: 6px 12px;
+            background: #dc2626;
+            font-size: 14px;
+            margin: 0;
+        }
+        .unblock-btn:hover {
+            background: #b91c1c;
+        }
+    </style>
 </head>
 <body>
-  <!-- Background code effect -->
-  <div class="code-bg">
-    <div class="code-line"><span class="cpp">#include</span> <span class="string">&lt;iostream&gt;</span></div>
-    <div class="code-line"><span class="cpp">#include</span> <span class="string">&lt;string&gt;</span></div>
-    <div class="code-line"><span class="cpp">using namespace</span> std;</div>
-    <div class="code-line"></div>
-    <div class="code-line"><span class="css">body {</span></div>
-    <div class="code-line">  <span class="css">background-color:</span> <span class="string">#1e1e1e;</span></div>
-    <div class="code-line">  <span class="css">font-family:</span> <span class="string">'Courier New', monospace;</span></div>
-    <div class="code-line"><span class="css">}</span></div>
-    <div class="code-line"></div>
-    <div class="code-line"><span class="cpp">int</span> <span class="cpp">main()</span> {</div>
-    <div class="code-line">  <span class="cpp">string</span> loader = <span class="string">"ASHESZ CODM LOADER"</span>;</div>
-    <div class="code-line">  cout &lt;&lt; loader &lt;&lt; endl;</div>
-    <div class="code-line">  <span class="cpp">return</span> 0;</div>
-    <div class="code-line">}</div>
-    <div class="code-line"></div>
-    <div class="code-line"><span class="css">.quiz {</span></div>
-    <div class="code-line">  <span class="css">border-image:</span> <span class="string">conic-gradient(red, orange, yellow, green, blue, indigo, violet) 1;</span></div>
-    <div class="code-line"><span class="css">}</span></div>
-    <div class="code-line"></div>
-    <div class="code-line"><span class="cpp">#include</span> <span class="string">&lt;vector&gt;</span></div>
-    <div class="code-line"><span class="cpp">void</span> <span class="cpp">showTutorial()</span> {</div>
-    <div class="code-line">  cout &lt;&lt; <span class="string">"Tutorial how to use Loader ASHESZ"</span> &lt;&lt; endl;</div>
-    <div class="code-line">}</div>
-    <div class="code-line"></div>
-    <div class="code-line"><span class="css">.btn-submit {</span></div>
-    <div class="code-line">  <span class="css">background:</span> <span class="string">#ee6c6c;</span></div>
-    <div class="code-line">  <span class="css">box-shadow:</span> <span class="string">0 0 5px #ff4545;</span></div>
-    <div class="code-line"><span class="css">}</span></div>
-    <!-- Ulitin ang ilang lines para sa mahabang scroll effect -->
-    <div class="code-line"><span class="cpp">#include</span> <span class="string">&lt;iostream&gt;</span></div>
-    <div class="code-line"><span class="cpp">#include</span> <span class="string">&lt;string&gt;</span></div>
-    <div class="code-line"><span class="cpp">using namespace</span> std;</div>
-  </div>
+    <h1>🔑 Key Manager Panel</h1>
 
-  <h1 class="center-text">LOADER ONLY CODM</h1>
-  <form class="quiz" id="quizForm">
-    <p>Tutorial how to use Loader ASHESZ</p>
-    <div class="pili-ka">
-      <input type="radio" id="greatest" name="feeling" value="greatest" checked>
-      <label for="greatest">Click here</label>
+    <!-- Key Generation Section -->
+    <div class="panel">
+        <h2>Generate Key</h2>
+        <label for="keyPrefix">Key Prefix (Para mo ma-customize: Hal: APP-, PROD-):</label>
+        <input type="text" id="keyPrefix" placeholder="Hal: APP-" value="APP-">
+
+        <label for="validDurationType">Set Validity Type:</label>
+        <select id="validDurationType" style="width:100%; padding:12px; border-radius:6px; margin-bottom:10px;">
+            <option value="days">Days</option>
+            <option value="hours">Hours</option>
+            <option value="minutes">Minutes</option>
+        </select>
+
+        <label for="validDuration">Validity Length (Ikaw na mag-adjust ng bilang dito):</label>
+        <input type="number" id="validDuration" placeholder="Hal: 7, 24, 60" value="7" min="1">
+
+        <button onclick="generateKey()">Generate New Key</button>
+
+        <div class="output-area">
+            <strong>Generated Key:</strong> <span id="generatedKey">- Wala pa pong key na nabuo -</span><br>
+            <strong>Valid Until:</strong> <span id="validUntil">- Wala pa -</span>
+        </div>
     </div>
 
-    <input type="submit" value="Submit" class="btn-submit">
+    <!-- Key Validation Section -->
+    <div class="panel">
+        <h2>Validate Key</h2>
+        <label for="checkKey">Enter Key to Validate:</label>
+        <input type="text" id="checkKey" placeholder="Ilagay dito ang key na iche-check">
 
-    <!-- Contact Owner Section -->
-    <div class="contact-owner">
-      Contact owner: <a href="https://t.me/Asheszconfig" target="_blank">@Asheszconfig</a>
+        <button onclick="validateKey()">Check Validity</button>
+
+        <div class="output-area">
+            <strong>Validation Result:</strong> <span id="validationResult">- I-validate muna ang key -</span>
+        </div>
     </div>
 
-    <div class="output-video">
-      <video id="video-greatest" src="greateswhite.mp4" controls></video>
+    <!-- Block/Unblock Section -->
+    <div class="panel">
+        <h2>Block/Unblock Keys</h2>
+        <label for="blockKey">Enter Key to Block:</label>
+        <input type="text" id="blockKey" placeholder="Ilagay dito ang key na ibo-block">
+
+        <button onclick="blockKey()">Block Key</button>
+
+        <h3 style="margin-top:20px; color:#5f6368;">Blocked Keys:</h3>
+        <ul class="blocked-keys-list" id="blockedKeysList">
+            <li>- Wala pang naka-block na key -</li>
+        </ul>
     </div>
-  </form>
 
-  <script>
-    const form = document.getElementById("quizForm");
+    <script>
+        // I-save ang data sa browser storage
+        let blockedKeys = JSON.parse(localStorage.getItem('blockedKeys')) || [];
+        let allGeneratedKeys = JSON.parse(localStorage.getItem('allGeneratedKeys')) || [];
 
-    form.addEventListener("submit", function(event) {
-      event.preventDefault();
-      
-      const selectedVideo = document.getElementById("video-greatest");
-      selectedVideo.style.display = "block";
-      selectedVideo.currentTime = 0;
-      selectedVideo.play();
-    });
+        // I-update ang listahan ng blocked keys
+        function updateBlockedList() {
+            const list = document.getElementById('blockedKeysList');
+            list.innerHTML = blockedKeys.length === 0 
+                ? '<li>- Wala pang naka-block na key -</li>'
+                : blockedKeys.map(key => 
+                    `<li>${key} <button class="unblock-btn" onclick="unblockKey('${key}')">Unblock</button></li>`
+                ).join('');
+            localStorage.setItem('blockedKeys', JSON.stringify(blockedKeys));
+        }
 
-    // Gumawa ng dagdag na code lines para sa background
-    const codeBg = document.querySelector('.code-bg');
-    for(let i = 0; i < 10; i++) {
-      const newLine = document.createElement('div');
-      newLine.className = 'code-line';
-      if(i % 3 === 0) {
-        newLine.innerHTML = `<span class="cpp">cout &lt;&lt;</span> <span class="string">"COD MOBILE LOADER"</span> <span class="cpp">&lt;&lt; endl;</span>`;
-      } else if(i % 3 === 1) {
-        newLine.innerHTML = `<span class="css">.output-video video {</span>`;
-      } else {
-        newLine.innerHTML = `  <span class="css">object-fit:</span> <span class="string">contain;</span>`;
-      }
-      codeBg.appendChild(newLine);
-    }
-  </script>
+        // Generate Key Function
+        function generateKey() {
+            const prefix = document.getElementById('keyPrefix').value.trim();
+            const durationType = document.getElementById('validDurationType').value;
+            const duration = parseInt(document.getElementById('validDuration').value);
 
+            if (isNaN(duration) || duration < 1) {
+                alert('Ilagay mo ng tamang bilang para sa validity length!');
+                return;
+            }
+
+            // Gumawa ng random na bahagi ng key
+            const randomPart = Math.random().toString(36).substring(2, 12).toUpperCase();
+            const uniqueKey = `${prefix}${randomPart}`;
+
+            // Kalkulahin ang expiration time
+            const now = new Date();
+            if (durationType === 'days') now.setDate(now.getDate() + duration);
+            if (durationType === 'hours') now.setHours(now.getHours() + duration);
+            if (durationType === 'minutes') now.setMinutes(now.getMinutes() + duration);
+            
+            const validUntilStr = now.toLocaleString('fil-PH');
+            const validUntilMs = now.getTime();
+
+            // I-save ang key
+            allGeneratedKeys.push({ key: uniqueKey, expiresAt: validUntilMs });
+            localStorage.setItem('allGeneratedKeys', JSON.stringify(allGeneratedKeys));
+
+            // Ipakita ang resulta
+            document.getElementById('generatedKey').textContent = uniqueKey;
+            document.getElementById('validUntil').textContent = validUntilStr;
+        }
+
+        // Validate Key Function
+        function validateKey() {
+            const keyToCheck = document.getElementById('checkKey').value.trim();
+            const resultEl = document.getElementById('validationResult');
+
+            if (!keyToCheck) {
+                resultEl.textContent = 'Ilagay mo muna ang key na iche-check!';
+                resultEl.style.color = '#5f6368';
+                return;
+            }
+
+            // Check kung blocked
+            if (blockedKeys.includes(keyToCheck)) {
+                resultEl.textContent = '❌ KEY IS BLOCKED - CANNOT BE USED';
+                resultEl.style.color = '#dc2626';
+                return;
+            }
+
+            // Check kung valid at hindi expired
+            const foundKey = allGeneratedKeys.find(item => item.key === keyToCheck);
+            if (!foundKey) {
+                resultEl.textContent = '❌ KEY NOT RECOGNIZED';
+                resultEl.style.color = '#dc2626';
+            } else {
+                const nowMs = new Date().getTime();
+                if (nowMs > foundKey.expiresAt) {
+                    resultEl.textContent = '❌ KEY HAS EXPIRED';
+                    resultEl.style.color = '#dc2626';
+                } else {
+                    const expiresAtStr = new Date(foundKey.expiresAt).toLocaleString('fil-PH');
+                    resultEl.textContent = `✅ KEY IS VALID! Expires on: ${expiresAtStr}`;
+                    resultEl.style.color = '#166534';
+                }
+            }
+        }
+
+        // Block Key Function
+        function blockKey() {
+            const keyToBlock = document.getElementById('blockKey').value.trim();
+            
+            if (!keyToBlock) {
+                alert('Ilagay mo muna ang key na ibo-block!');
+                return;
+            }
+
+            if (blockedKeys.includes(keyToBlock)) {
+                alert('Key na ito ay naka-block na!');
+                return;
+            }
+
+            blockedKeys.push(keyToBlock);
+            updateBlockedList();
+            document.getElementById('blockKey').value = '';
+            alert('Key successfully blocked!');
+        }
+
+        // Unblock Key Function
+        function unblockKey(key) {
+            blockedKeys = blockedKeys.filter(k => k !== key);
+            updateBlockedList();
+            alert('Key successfully unblocked!');
+        }
+
+        // I-load ang blocked list pag buksan ang page
+        updateBlockedList();
+    </script>
 </body>
 </html>
 
-  
