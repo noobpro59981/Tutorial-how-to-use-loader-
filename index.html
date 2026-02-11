@@ -1,276 +1,110 @@
 <!DOCTYPE html>
-<html lang="fil">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Key Manager Panel</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: Arial, sans-serif;
+    <title>Key Manager</title>
+    <script>
+        // I-save ang lahat ng data sa localStorage
+        let keyList = JSON.parse(localStorage.getItem('keyList')) || [];
+
+        // I-update ang display ng lahat ng key
+        function updateDisplay() {
+            let table = document.getElementById('keyTable');
+            table.innerHTML = '';
+            
+            // Header ng table
+            let headerRow = table.insertRow();
+            headerRow.innerHTML = `<th>Key</th><th>Valid Until</th><th>Status</th><th>Action</th>`;
+
+            // Ipakita ang lahat ng key
+            keyList.forEach((item, index) => {
+                let row = table.insertRow();
+                row.innerHTML = `
+                    <td>${item.key}</td>
+                    <td>${item.validUntil}</td>
+                    <td>${item.blocked ? '🔴 BLOCKED' : '🟢 ACTIVE'}</td>
+                    <td>
+                        <button onclick="${item.blocked ? 'unblockKey(' + index + ')' : 'blockKey(' + index + ')'}" 
+                                style="background:${item.blocked ? '#4CAF50' : '#f44336'};color:white;">
+                            ${item.blocked ? 'UNBLOCK' : 'BLOCK'}
+                        </button>
+                    </td>
+                `;
+            });
+
+            // I-update ang latest generated key display
+            let latestKey = keyList[keyList.length - 1];
+            document.getElementById('generatedKey').textContent = latestKey ? latestKey.key : 'Wala pa pong key na nabuo';
+            document.getElementById('validUntil').textContent = latestKey ? latestKey.validUntil : 'Wala pa';
         }
-        body {
-            padding: 20px;
-            max-width: 700px;
-            margin: 0 auto;
-            background: #f0f2f5;
+
+        // Generate bagong key (pwede i-adjust ang days/hours/minutes)
+        function generateKey() {
+            const prefix = document.getElementById('prefix').value || 'APP-';
+            const type = document.querySelector('input[name="validityType"]:checked').value;
+            const length = parseInt(document.getElementById('length').value) || 1;
+
+            // Gumawa ng random key
+            const random = Math.floor(Math.random() * 900000) + 100000;
+            const key = prefix + random;
+
+            // Kalkulahin ang expiration (pwede i-adjust ang days)
+            let expires = new Date();
+            if (type === 'Days') expires.setDate(expires.getDate() + length);
+            if (type === 'Hours') expires.setHours(expires.getHours() + length);
+            if (type === 'Minutes') expires.setMinutes(expires.getMinutes() + length);
+            const validUntil = expires.toISOString().slice(0, 19).replace('T', ' ');
+
+            // I-save ang key na may status na ACTIVE
+            keyList.push({ key, validUntil, blocked: false });
+            localStorage.setItem('keyList', JSON.stringify(keyList));
+            updateDisplay();
         }
-        .panel {
-            background: white;
-            padding: 25px;
-            margin: 15px 0;
-            border-radius: 10px;
-            box-shadow: 0 3px 6px rgba(0,0,0,0.1);
+
+        // Block key
+        function blockKey(index) {
+            keyList[index].blocked = true;
+            localStorage.setItem('keyList', JSON.stringify(keyList));
+            updateDisplay();
         }
-        h1 {
-            color: #1a73e8;
-            text-align: center;
-            margin-bottom: 20px;
+
+        // Unblock key
+        function unblockKey(index) {
+            keyList[index].blocked = false;
+            localStorage.setItem('keyList', JSON.stringify(keyList));
+            updateDisplay();
         }
-        h2 {
-            color: #202124;
-            margin-bottom: 15px;
-            font-size: 18px;
-            border-left: 4px solid #1a73e8;
-            padding-left: 10px;
-        }
-        label {
-            display: block;
-            margin: 12px 0 5px;
-            font-weight: 500;
-            color: #5f6368;
-        }
-        input, button {
-            width: 100%;
-            padding: 12px;
-            border: 1px solid #dadce0;
-            border-radius: 6px;
-            font-size: 16px;
-        }
-        input:focus {
-            outline: none;
-            border-color: #1a73e8;
-            box-shadow: 0 0 0 2px rgba(26,115,232,0.2);
-        }
-        button {
-            background: #1a73e8;
-            color: white;
-            border: none;
-            cursor: pointer;
-            margin-top: 10px;
-            font-weight: 500;
-        }
-        button:hover {
-            background: #1557b0;
-        }
-        .output-area {
-            margin-top: 15px;
-            padding: 12px;
-            background: #f8fafc;
-            border-radius: 6px;
-            word-break: break-all;
-            border: 1px solid #e2e8f0;
-        }
-        .output-area strong {
-            color: #202124;
-        }
-        .blocked-keys-list {
-            margin-top: 15px;
-            list-style: none;
-        }
-        .blocked-keys-list li {
-            padding: 10px;
-            background: #ffebea;
-            margin: 8px 0;
-            border-radius: 6px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border: 1px solid #fecdd3;
-        }
-        .unblock-btn {
-            width: auto;
-            padding: 6px 12px;
-            background: #dc2626;
-            font-size: 14px;
-            margin: 0;
-        }
-        .unblock-btn:hover {
-            background: #b91c1c;
-        }
-    </style>
+
+        // Ipakita ang data kapag buksan ang page
+        window.onload = updateDisplay;
+    </script>
 </head>
 <body>
-    <h1>🔑 Key Manager Panel</h1>
-
-    <!-- Key Generation Section -->
-    <div class="panel">
-        <h2>Generate Key</h2>
-        <label for="keyPrefix">Key Prefix (Para mo ma-customize: Hal: APP-, PROD-):</label>
-        <input type="text" id="keyPrefix" placeholder="Hal: APP-" value="APP-">
-
-        <label for="validDurationType">Set Validity Type:</label>
-        <select id="validDurationType" style="width:100%; padding:12px; border-radius:6px; margin-bottom:10px;">
-            <option value="days">Days</option>
-            <option value="hours">Hours</option>
-            <option value="minutes">Minutes</option>
-        </select>
-
-        <label for="validDuration">Validity Length (Ikaw na mag-adjust ng bilang dito):</label>
-        <input type="number" id="validDuration" placeholder="Hal: 7, 24, 60" value="7" min="1">
-
-        <button onclick="generateKey()">Generate New Key</button>
-
-        <div class="output-area">
-            <strong>Generated Key:</strong> <span id="generatedKey">- Wala pa pong key na nabuo -</span><br>
-            <strong>Valid Until:</strong> <span id="validUntil">- Wala pa -</span>
-        </div>
+    <h2>Generate Key</h2>
+    <div>
+        Key Prefix: <input type="text" id="prefix" placeholder="Hal: APP-, PROD-">
     </div>
-
-    <!-- Key Validation Section -->
-    <div class="panel">
-        <h2>Validate Key</h2>
-        <label for="checkKey">Enter Key to Validate:</label>
-        <input type="text" id="checkKey" placeholder="Ilagay dito ang key na iche-check">
-
-        <button onclick="validateKey()">Check Validity</button>
-
-        <div class="output-area">
-            <strong>Validation Result:</strong> <span id="validationResult">- I-validate muna ang key -</span>
-        </div>
+    <div>
+        Set Validity Type:<br>
+        <input type="radio" name="validityType" value="Days" checked> Days<br>
+        <input type="radio" name="validityType" value="Hours"> Hours<br>
+        <input type="radio" name="validityType" value="Minutes"> Minutes
     </div>
-
-    <!-- Block/Unblock Section -->
-    <div class="panel">
-        <h2>Block/Unblock Keys</h2>
-        <label for="blockKey">Enter Key to Block:</label>
-        <input type="text" id="blockKey" placeholder="Ilagay dito ang key na ibo-block">
-
-        <button onclick="blockKey()">Block Key</button>
-
-        <h3 style="margin-top:20px; color:#5f6368;">Blocked Keys:</h3>
-        <ul class="blocked-keys-list" id="blockedKeysList">
-            <li>- Wala pang naka-block na key -</li>
-        </ul>
+    <div>
+        Validity Length: <input type="number" id="length" min="1" value="1"> 
+        <small>(Pwede mong i-adjust ang bilang dito)</small>
     </div>
+    <button onclick="generateKey()">Generate New Key</button>
 
-    <script>
-        // I-save ang data sa browser storage
-        let blockedKeys = JSON.parse(localStorage.getItem('blockedKeys')) || [];
-        let allGeneratedKeys = JSON.parse(localStorage.getItem('allGeneratedKeys')) || [];
+    <h3>Latest Generated Key:</h3>
+    <p>- <span id="generatedKey">Wala pa pong key na nabuo</span> -</p>
+    <h3>Valid Until:</h3>
+    <p>- <span id="validUntil">Wala pa</span> -</p>
 
-        // I-update ang listahan ng blocked keys
-        function updateBlockedList() {
-            const list = document.getElementById('blockedKeysList');
-            list.innerHTML = blockedKeys.length === 0 
-                ? '<li>- Wala pang naka-block na key -</li>'
-                : blockedKeys.map(key => 
-                    `<li>${key} <button class="unblock-btn" onclick="unblockKey('${key}')">Unblock</button></li>`
-                ).join('');
-            localStorage.setItem('blockedKeys', JSON.stringify(blockedKeys));
-        }
+    <h3>All Keys (Block/Unblock Here):</h3>
+    <table id="keyTable" border="1" cellpadding="8" cellspacing="0"></table>
 
-        // Generate Key Function
-        function generateKey() {
-            const prefix = document.getElementById('keyPrefix').value.trim();
-            const durationType = document.getElementById('validDurationType').value;
-            const duration = parseInt(document.getElementById('validDuration').value);
-
-            if (isNaN(duration) || duration < 1) {
-                alert('Ilagay mo ng tamang bilang para sa validity length!');
-                return;
-            }
-
-            // Gumawa ng random na bahagi ng key
-            const randomPart = Math.random().toString(36).substring(2, 12).toUpperCase();
-            const uniqueKey = `${prefix}${randomPart}`;
-
-            // Kalkulahin ang expiration time
-            const now = new Date();
-            if (durationType === 'days') now.setDate(now.getDate() + duration);
-            if (durationType === 'hours') now.setHours(now.getHours() + duration);
-            if (durationType === 'minutes') now.setMinutes(now.getMinutes() + duration);
-            
-            const validUntilStr = now.toLocaleString('fil-PH');
-            const validUntilMs = now.getTime();
-
-            // I-save ang key
-            allGeneratedKeys.push({ key: uniqueKey, expiresAt: validUntilMs });
-            localStorage.setItem('allGeneratedKeys', JSON.stringify(allGeneratedKeys));
-
-            // Ipakita ang resulta
-            document.getElementById('generatedKey').textContent = uniqueKey;
-            document.getElementById('validUntil').textContent = validUntilStr;
-        }
-
-        // Validate Key Function
-        function validateKey() {
-            const keyToCheck = document.getElementById('checkKey').value.trim();
-            const resultEl = document.getElementById('validationResult');
-
-            if (!keyToCheck) {
-                resultEl.textContent = 'Ilagay mo muna ang key na iche-check!';
-                resultEl.style.color = '#5f6368';
-                return;
-            }
-
-            // Check kung blocked
-            if (blockedKeys.includes(keyToCheck)) {
-                resultEl.textContent = '❌ KEY IS BLOCKED - CANNOT BE USED';
-                resultEl.style.color = '#dc2626';
-                return;
-            }
-
-            // Check kung valid at hindi expired
-            const foundKey = allGeneratedKeys.find(item => item.key === keyToCheck);
-            if (!foundKey) {
-                resultEl.textContent = '❌ KEY NOT RECOGNIZED';
-                resultEl.style.color = '#dc2626';
-            } else {
-                const nowMs = new Date().getTime();
-                if (nowMs > foundKey.expiresAt) {
-                    resultEl.textContent = '❌ KEY HAS EXPIRED';
-                    resultEl.style.color = '#dc2626';
-                } else {
-                    const expiresAtStr = new Date(foundKey.expiresAt).toLocaleString('fil-PH');
-                    resultEl.textContent = `✅ KEY IS VALID! Expires on: ${expiresAtStr}`;
-                    resultEl.style.color = '#166534';
-                }
-            }
-        }
-
-        // Block Key Function
-        function blockKey() {
-            const keyToBlock = document.getElementById('blockKey').value.trim();
-            
-            if (!keyToBlock) {
-                alert('Ilagay mo muna ang key na ibo-block!');
-                return;
-            }
-
-            if (blockedKeys.includes(keyToBlock)) {
-                alert('Key na ito ay naka-block na!');
-                return;
-            }
-
-            blockedKeys.push(keyToBlock);
-            updateBlockedList();
-            document.getElementById('blockKey').value = '';
-            alert('Key successfully blocked!');
-        }
-
-        // Unblock Key Function
-        function unblockKey(key) {
-            blockedKeys = blockedKeys.filter(k => k !== key);
-            updateBlockedList();
-            alert('Key successfully unblocked!');
-        }
-
-        // I-load ang blocked list pag buksan ang page
-        updateBlockedList();
-    </script>
+    <!-- Para ma-access ng loader ang lahat ng data -->
+    <div id="allKeyData" style="display:none;">${JSON.stringify(keyList)}</div>
 </body>
 </html>
 
