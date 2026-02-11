@@ -1,110 +1,112 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Key Manager</title>
+    <title>Key Generator</title>
     <script>
-        // I-save ang lahat ng data sa localStorage
+        // I-save ang mga key sa localStorage
         let keyList = JSON.parse(localStorage.getItem('keyList')) || [];
 
-        // I-update ang display ng lahat ng key
-        function updateDisplay() {
-            let table = document.getElementById('keyTable');
-            table.innerHTML = '';
-            
-            // Header ng table
-            let headerRow = table.insertRow();
-            headerRow.innerHTML = `<th>Key</th><th>Valid Until</th><th>Status</th><th>Action</th>`;
-
-            // Ipakita ang lahat ng key
-            keyList.forEach((item, index) => {
-                let row = table.insertRow();
-                row.innerHTML = `
-                    <td>${item.key}</td>
-                    <td>${item.validUntil}</td>
-                    <td>${item.blocked ? '🔴 BLOCKED' : '🟢 ACTIVE'}</td>
-                    <td>
-                        <button onclick="${item.blocked ? 'unblockKey(' + index + ')' : 'blockKey(' + index + ')'}" 
-                                style="background:${item.blocked ? '#4CAF50' : '#f44336'};color:white;">
-                            ${item.blocked ? 'UNBLOCK' : 'BLOCK'}
-                        </button>
-                    </td>
-                `;
-            });
-
-            // I-update ang latest generated key display
+        // I-update ang display at i-save ang JSON data para sa loader
+        function updatePage() {
+            // Ipakita ang latest key
             let latestKey = keyList[keyList.length - 1];
-            document.getElementById('generatedKey').textContent = latestKey ? latestKey.key : 'Wala pa pong key na nabuo';
-            document.getElementById('validUntil').textContent = latestKey ? latestKey.validUntil : 'Wala pa';
+            document.getElementById('genKey').textContent = latestKey ? latestKey.key : 'Wala pa pong key na nabuo';
+            document.getElementById('valUntil').textContent = latestKey ? latestKey.validUntil : 'Wala pa';
+
+            // I-save ang lahat ng key bilang JSON (para mabasa ng loader)
+            document.getElementById('allKeyData').textContent = JSON.stringify(keyList);
         }
 
-        // Generate bagong key (pwede i-adjust ang days/hours/minutes)
-        function generateKey() {
-            const prefix = document.getElementById('prefix').value || 'APP-';
+        // Generate bagong key
+        function generateNewKey() {
+            const prefix = document.getElementById('prefixInput').value || 'APP-';
             const type = document.querySelector('input[name="validityType"]:checked').value;
-            const length = parseInt(document.getElementById('length').value) || 1;
+            const length = parseInt(document.getElementById('lengthInput').value) || 1;
 
             // Gumawa ng random key
-            const random = Math.floor(Math.random() * 900000) + 100000;
-            const key = prefix + random;
+            const randomNum = Math.floor(Math.random() * 900000) + 100000;
+            const newKey = prefix + randomNum;
 
-            // Kalkulahin ang expiration (pwede i-adjust ang days)
+            // Kalkulahin ang expiration
             let expires = new Date();
             if (type === 'Days') expires.setDate(expires.getDate() + length);
             if (type === 'Hours') expires.setHours(expires.getHours() + length);
             if (type === 'Minutes') expires.setMinutes(expires.getMinutes() + length);
             const validUntil = expires.toISOString().slice(0, 19).replace('T', ' ');
 
-            // I-save ang key na may status na ACTIVE
-            keyList.push({ key, validUntil, blocked: false });
+            // I-add ang key sa listahan (hindi blocked)
+            keyList.push({ key: newKey, validUntil: validUntil, blocked: false });
             localStorage.setItem('keyList', JSON.stringify(keyList));
-            updateDisplay();
+            updatePage();
         }
 
-        // Block key
-        function blockKey(index) {
-            keyList[index].blocked = true;
+        // I-block ang key (pwede mong i-edit dito kung kailangan)
+        function blockThisKey(keyToBlock) {
+            for (let i = 0; i < keyList.length; i++) {
+                if (keyList[i].key === keyToBlock) {
+                    keyList[i].blocked = true;
+                    break;
+                }
+            }
             localStorage.setItem('keyList', JSON.stringify(keyList));
-            updateDisplay();
+            updatePage();
         }
 
-        // Unblock key
-        function unblockKey(index) {
-            keyList[index].blocked = false;
+        // I-unblock ang key
+        function unblockThisKey(keyToUnblock) {
+            for (let i = 0; i < keyList.length; i++) {
+                if (keyList[i].key === keyToUnblock) {
+                    keyList[i].blocked = false;
+                    break;
+                }
+            }
             localStorage.setItem('keyList', JSON.stringify(keyList));
-            updateDisplay();
+            updatePage();
         }
 
-        // Ipakita ang data kapag buksan ang page
-        window.onload = updateDisplay;
+        // I-load ang data kapag buksan ang page
+        window.onload = function() {
+            updatePage();
+            // Ipakit ang lahat ng key kung meron
+            let keyTable = document.getElementById('keyTable');
+            keyList.forEach(item => {
+                let row = keyTable.insertRow();
+                row.innerHTML = `
+                    <td>${item.key}</td>
+                    <td>${item.validUntil}</td>
+                    <td>${item.blocked ? '🔴 BLOCKED' : '🟢 ACTIVE'}</td>
+                    <td>
+                        <button onclick="${item.blocked ? 'unblockThisKey(\'' + item.key + '\')' : 'blockThisKey(\'' + item.key + '\')'}">
+                            ${item.blocked ? 'UNBLOCK' : 'BLOCK'}
+                        </button>
+                    </td>
+                `;
+            });
+        };
     </script>
 </head>
 <body>
     <h2>Generate Key</h2>
-    <div>
-        Key Prefix: <input type="text" id="prefix" placeholder="Hal: APP-, PROD-">
-    </div>
+    <div>Key Prefix: <input type="text" id="prefixInput" placeholder="Hal: APP-, PROD-"></div>
     <div>
         Set Validity Type:<br>
         <input type="radio" name="validityType" value="Days" checked> Days<br>
         <input type="radio" name="validityType" value="Hours"> Hours<br>
         <input type="radio" name="validityType" value="Minutes"> Minutes
     </div>
-    <div>
-        Validity Length: <input type="number" id="length" min="1" value="1"> 
-        <small>(Pwede mong i-adjust ang bilang dito)</small>
-    </div>
-    <button onclick="generateKey()">Generate New Key</button>
+    <div>Validity Length: <input type="number" id="lengthInput" min="1" value="1"></div>
+    <button onclick="generateNewKey()">Generate New Key</button>
 
-    <h3>Latest Generated Key:</h3>
-    <p>- <span id="generatedKey">Wala pa pong key na nabuo</span> -</p>
+    <h3>Generated Key:</h3>
+    <p>- <span id="genKey">Wala pa pong key na nabuo</span> -</p>
     <h3>Valid Until:</h3>
-    <p>- <span id="validUntil">Wala pa</span> -</p>
+    <p>- <span id="valUntil">Wala pa</span> -</p>
 
-    <h3>All Keys (Block/Unblock Here):</h3>
-    <table id="keyTable" border="1" cellpadding="8" cellspacing="0"></table>
+    <h3>All Keys:</h3>
+    <table id="keyTable" border="1" cellpadding="5" cellspacing="0"></table>
 
-    <!-- Para ma-access ng loader ang lahat ng data -->
-    <div id="allKeyData" style="display:none;">${JSON.stringify(keyList)}</div>
+    <!-- IMPORTANTE: Ito ang section na babasahin ng loader -->
+    <div id="allKeyData" style="display:none;"></div>
 </body>
 </html>
 
