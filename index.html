@@ -1,115 +1,106 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Vince Injector Official Panel</title>
+    <title>Vince Injector Online Panel</title>
     <script>
-        // PRE-SET NA KEY: vincepogi (kasama na lahat ng detalye)
-        let keyList = [
+        // ONLINE KEY STORAGE (MA-BABASA NG INJECTOR)
+        let keyDatabase = [
             { 
-                key: "vincepogi", 
-                validUntil: "2026-03-20 18:00:00", 
-                blocked: false, 
-                maxDevices: 3, 
-                usedDevices: 0, 
-                validityDays: 30 
+                "key": "vincepogi", 
+                "validUntil": "2026-03-20 18:00:00", 
+                "blocked": false, 
+                "maxDevices": 3, 
+                "usedDevices": 0 
+            },
+            { 
+                "key": "vincefree", 
+                "validUntil": "2026-03-15 12:00:00", 
+                "blocked": false, 
+                "maxDevices": 2, 
+                "usedDevices": 0 
+            },
+            { 
+                "key": "vinceeee", 
+                "validUntil": "2026-04-20 18:30:00", 
+                "blocked": false, 
+                "maxDevices": 1, 
+                "usedDevices": 0 
             }
         ];
 
-        // I-save agad sa localStorage
-        if (!localStorage.getItem('keyList')) {
-            localStorage.setItem('keyList', JSON.stringify(keyList));
-        } else {
-            keyList = JSON.parse(localStorage.getItem('keyList'));
+        // I-SAVE ANG DATABASE SA PAGE PARA MABASA NG INJECTOR
+        function updateKeyData() {
+            document.getElementById('onlineKeyData').textContent = JSON.stringify(keyDatabase);
+            updateDisplay();
         }
 
-        // I-update lahat ng display
-        function updatePage() {
-            // I-save ang JSON data para sa injector
-            document.getElementById('allKeyData').textContent = JSON.stringify(keyList);
-            
-            // Ipakita ang latest key
-            let latest = keyList[keyList.length - 1];
-            document.getElementById('genKey').textContent = latest.key;
-            document.getElementById('valUntil').textContent = latest.validUntil;
-            document.getElementById('devLimit').textContent = latest.maxDevices;
-            document.getElementById('usedDev').textContent = latest.usedDevices;
-        }
-
-        // Generate bagong key (may device limit at days timer)
+        // GENERATE BAGONG KEY
         function generateNewKey() {
             const prefix = document.getElementById('prefixInput').value || 'VINCE-';
-            const days = parseInt(document.getElementById('daysInput').value) || 30;
-            const devLimit = parseInt(document.getElementById('devInput').value) || 1;
+            const type = document.querySelector('input[name="validityType"]:checked').value;
+            const length = parseInt(document.getElementById('lengthInput').value) || 30;
 
-            // Gumawa ng key
             const random = Math.floor(Math.random() * 900000) + 100000;
             const newKey = prefix + random;
 
-            // Kalkulahin ang expiration
             let expires = new Date();
-            expires.setDate(expires.getDate() + days);
+            if (type === 'Days') expires.setDate(expires.getDate() + length);
+            if (type === 'Hours') expires.setHours(expires.getHours() + length);
+            if (type === 'Minutes') expires.setMinutes(expires.getMinutes() + length);
             const validUntil = expires.toISOString().slice(0, 19).replace('T', ' ');
 
-            // I-add sa listahan
-            keyList.push({
-                key: newKey,
-                validUntil: validUntil,
-                blocked: false,
-                maxDevices: devLimit,
-                usedDevices: 0,
-                validityDays: days
+            keyDatabase.push({
+                "key": newKey,
+                "validUntil": validUntil,
+                "blocked": false,
+                "maxDevices": parseInt(document.getElementById('devLimitInput').value) || 1,
+                "usedDevices": 0
             });
-            localStorage.setItem('keyList', JSON.stringify(keyList));
-            updatePage();
-            updateTable();
+
+            updateKeyData();
+            alert("Key Generated: " + newKey);
         }
 
-        // Block/Unblock key
+        // BLOCK/UNBLOCK KEY
         function toggleBlock(keyToToggle) {
-            for (let i = 0; i < keyList.length; i++) {
-                if (keyList[i].key === keyToToggle) {
-                    keyList[i].blocked = !keyList[i].blocked;
+            for (let i = 0; i < keyDatabase.length; i++) {
+                if (keyDatabase[i].key === keyToToggle) {
+                    keyDatabase[i].blocked = !keyDatabase[i].blocked;
                     break;
                 }
             }
-            localStorage.setItem('keyList', JSON.stringify(keyList));
-            updatePage();
-            updateTable();
+            updateKeyData();
         }
 
-        // I-update ang device count kapag nag-login
+        // UPDATE DEVICE COUNT
         function updateDeviceCount(keyToUpdate) {
-            for (let i = 0; i < keyList.length; i++) {
-                if (keyList[i].key === keyToUpdate && keyList[i].usedDevices < keyList[i].maxDevices) {
-                    keyList[i].usedDevices += 1;
+            for (let i = 0; i < keyDatabase.length; i++) {
+                if (keyDatabase[i].key === keyToUpdate && keyDatabase[i].usedDevices < keyDatabase[i].maxDevices) {
+                    keyDatabase[i].usedDevices += 1;
                     break;
                 }
             }
-            localStorage.setItem('keyList', JSON.stringify(keyList));
-            updatePage();
-            updateTable();
+            updateKeyData();
         }
 
-        // I-update ang table ng mga key
-        function updateTable() {
+        // I-PAKITA ANG MGA KEY SA TABLE
+        function updateDisplay() {
             let table = document.getElementById('keyTable');
             table.innerHTML = '';
             let header = table.insertRow();
             header.innerHTML = `
                 <th>KEY</th>
-                <th>VALID DAYS</th>
-                <th>EXPIRES ON</th>
+                <th>VALID UNTIL</th>
                 <th>DEVICE LIMIT</th>
                 <th>USED DEVICES</th>
                 <th>STATUS</th>
                 <th>ACTION</th>
             `;
 
-            keyList.forEach(item => {
+            keyDatabase.forEach(item => {
                 let row = table.insertRow();
                 row.innerHTML = `
                     <td>${item.key}</td>
-                    <td>${item.validityDays}</td>
                     <td>${item.validUntil}</td>
                     <td>${item.maxDevices}</td>
                     <td>${item.usedDevices}</td>
@@ -121,38 +112,47 @@
                     </td>
                 `;
             });
+
+            // I-PAKITA ANG LATEST KEY
+            let latest = keyDatabase[keyDatabase.length - 1];
+            document.getElementById('generatedKey').textContent = latest.key;
+            document.getElementById('validUntil').textContent = latest.validUntil;
         }
 
-        // I-load lahat kapag buksan ang page
+        // I-LOAD LAHAT KAPAG BUKAS ANG PAGE
         window.onload = function() {
-            updatePage();
-            updateTable();
+            updateKeyData();
         };
     </script>
 </head>
 <body style="background:#1a1a1a;color:white;padding:20px;font-family:Arial;">
-    <h1>🔐 VINCE INJECTOR KEY MANAGER</h1>
+    <h1>🔐 VINCE INJECTOR ONLINE PANEL</h1>
 
+    <!-- KEY GENERATOR SECTION -->
     <h3>✨ Generate New Key:</h3>
     <div>Key Prefix: <input type="text" id="prefixInput" placeholder="Hal: VINCE-NEW-"></div>
-    <div>Validity (Days): <input type="number" id="daysInput" min="1" value="30"></div>
-    <div>Max Devices Allowed: <input type="number" id="devInput" min="1" value="1"></div>
-    <button onclick="generateNewKey()" style="margin:10px 0;padding:8px;">Generate Key</button>
+    <div>
+        Set Validity Type:<br>
+        <input type="radio" name="validityType" value="Days" checked> Days<br>
+        <input type="radio" name="validityType" value="Hours"> Hours<br>
+        <input type="radio" name="validityType" value="Minutes"> Minutes
+    </div>
+    <div>Validity Length: <input type="number" id="lengthInput" min="1" value="30"></div>
+    <div>Max Devices Allowed: <input type="number" id="devLimitInput" min="1" value="1"></div>
+    <button onclick="generateNewKey()" style="margin:10px 0;padding:8px;">Generate New Key</button>
 
+    <!-- LATEST KEY DISPLAY -->
     <hr>
-    <h3>📌 CURRENT KEY DETAILS:</h3>
-    <p>Generated Key: <strong>- <span id="genKey">Wala pa</span> -</strong></p>
-    <p>Valid Until: <strong>- <span id="valUntil">Wala pa</span> -</strong></p>
-    <p>Max Devices: <strong>- <span id="devLimit">0</span> -</strong></p>
-    <p>Used Devices: <strong>- <span id="usedDev">0</span> -</strong></p>
+    <h3>📌 Latest Generated Key:</h3>
+    <p>Generated Key: <strong>- <span id="generatedKey">Wala pa pong key na nabuo</span> -</strong></p>
+    <p>Valid Until: <strong>- <span id="validUntil">Wala pa</span> -</strong></p>
 
+    <!-- ALL KEYS TABLE -->
     <hr>
-    <h3>📋 ALL KEYS LIST:</h3>
+    <h3>📋 ALL ONLINE KEYS:</h3>
     <table id="keyTable" border="1" cellpadding="8" cellspacing="0" width="100%"></table>
 
-    <!-- PARA SA INJECTOR CONNECTION -->
-    <div id="allKeyData" style="display:none;"></div>
-    <div id="updateDeviceUrl" style="display:none;">https://noobpro59981.github.io/Tutorial-how-to-use-loader-/</div>
+    <!-- IMPORTANTE: INJECTOR MAGBABASA DITO -->
+    <div id="onlineKeyData" style="display:none;"></div>
 </body>
 </html>
-
