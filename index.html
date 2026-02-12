@@ -1,133 +1,204 @@
 <!DOCTYPE html>
 <html lang="fil">
 <head>
-    <title>ALP KEY SYSTEM</title>
+    <title>ALP KEY CONTROL PANEL</title>
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: Arial, sans-serif; }
-        body { background: #1a1a1a; color: #fff; padding: 20px; max-width: 800px; margin: 0 auto; }
-        h1 { color: #00ff9d; text-align: center; margin-bottom: 30px; }
-        .section { background: #2d2d2d; padding: 20px; border-radius: 10px; margin-bottom: 20px; border: 1px solid #00ff9d; }
-        .section-title { color: #00ccff; margin-bottom: 15px; font-size: 18px; }
-        label { display: block; margin: 10px 0 5px; color: #00ff9d; }
-        input, select { width: 100%; padding: 8px; background: #1a1a1a; color: #fff; border: 1px solid #00ff9d; border-radius: 5px; margin-bottom: 5px; }
-        .btn { background: #00ccff; color: #1a1a1a; border: none; padding: 10px 15px; border-radius: 5px; cursor: pointer; font-weight: bold; margin: 5px 5px 0 0; }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+        body {
+            background: #1a1a1a;
+            color: #fff;
+            padding: 20px;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        h1 {
+            color: #00ff9d;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .section {
+            background: #2d2d2d;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            border: 1px solid #00ff9d;
+        }
+        .section-title {
+            color: #00ccff;
+            margin-bottom: 15px;
+            font-size: 18px;
+        }
+        label {
+            display: block;
+            margin: 10px 0 5px;
+            color: #00ff9d;
+        }
+        input[type="text"], input[type="number"], select {
+            width: 100%;
+            padding: 8px;
+            background: #1a1a1a;
+            color: #fff;
+            border: 1px solid #00ff9d;
+            border-radius: 5px;
+            margin-bottom: 5px;
+        }
+        .btn {
+            background: #00ccff;
+            color: #1a1a1a;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            margin-top: 10px;
+            margin-right: 10px;
+        }
+        .btn-delete { background: #ff4444; color: #fff; }
         .btn-block { background: #ffaa00; color: #fff; }
         .btn-unblock { background: #00ff9d; color: #1a1a1a; }
-        .btn-delete { background: #ff4444; color: #fff; }
-        .key-item { padding: 8px; margin: 5px 0; background: #2d2d2d; border-radius: 3px; display: flex; flex-wrap: wrap; gap: 5px; align-items: center; }
+        .key-list {
+            margin-top: 15px;
+            padding: 10px;
+            background: #1a1a1a;
+            border: 1px solid #00ff9d;
+            border-radius: 5px;
+        }
+        .key-item {
+            padding: 8px;
+            margin: 5px 0;
+            background: #2d2d2d;
+            border-radius: 3px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+            align-items: center;
+        }
         .status-active { color: #00ff9d; }
         .status-inactive { color: #ff4444; }
         .expired { color: #ff4444; font-weight: bold; }
-        .output { margin-top: 10px; padding: 8px; background: #1a1a1a; border: 1px solid #00ccff; border-radius: 5px; color: #00ff9d; }
-        #keyChecker { display: none; } /* Para lang sa app request */
+        .generated-key-output {
+            margin-top: 10px;
+            padding: 8px;
+            background: #1a1a1a;
+            border: 1px solid #00ccff;
+            border-radius: 5px;
+            color: #00ff9d;
+        }
+        #appResponse { display: none; } /* Lihim na sagot para sa app */
     </style>
 </head>
 <body>
     <h1>🔐 ALP KEY CONTROL PANEL</h1>
     <p style="text-align:center; color:#00ccff;">Website: https://noobpro59981.github.io/Tutorial-how-to-use-loader-/</p>
 
-    <!-- KEY GENERATOR -->
+    <!-- KEY GENERATOR SECTION -->
     <div class="section">
         <div class="section-title">✨ GENERATE NEW KEY</div>
-        <label>Key Prefix (Hal: APP-, PROD-)</label>
+        <label for="keyPrefix">Key Prefix (Hal: APP-, PROD-)</label>
         <input type="text" id="keyPrefix" value="ALP-">
-        
-        <label>Key Identifier (Hal: vincepogi, VIP-001)</label>
-        <input type="text" id="keyName" required>
-        
-        <label>Max Devices Allowed</label>
+
+        <label for="keyName">Key Identifier (Hal: vincepogi, VIP-001)</label>
+        <input type="text" id="keyName" placeholder="Pangalan ng key" required>
+
+        <label for="maxDevices">Max Devices Allowed</label>
         <input type="number" id="maxDevices" min="1" value="3">
-        
-        <label>Validity Type</label>
+
+        <label for="validType">Validity Type</label>
         <select id="validType">
             <option value="days">Days</option>
             <option value="hours">Hours</option>
             <option value="minutes">Minutes</option>
         </select>
-        
-        <label>Validity Length</label>
+
+        <label for="validLength">Validity Length</label>
         <input type="number" id="validLength" min="1" value="30">
-        
+
         <button class="btn" onclick="generateKey()">GENERATE NEW KEY</button>
-        <div class="output" id="genKey">Generated Key: -- Wala pa --</div>
-        <div class="output" id="genValid">Valid Until: -- Wala pa --</div>
+        <div class="generated-key-output" id="generatedKeyDisplay">-- Wala pa pong key na nabuo --</div>
+        <div class="generated-key-output" id="validUntilDisplay">-- Wala pa --</div>
     </div>
 
-    <!-- KEY DATABASE -->
+    <!-- KEY DATABASE DISPLAY -->
     <div class="section">
-        <div class="section-title">📋 KEY DATABASE</div>
-        <div id="keyList">
+        <div class="section-title">📋 ONLINE KEY DATABASE</div>
+        <div class="key-list" id="keyList">
             <div class="key-item">
                 <span><strong>Key:</strong> ALP-vincepogi</span>
                 <span><strong>Max Devices:</strong> 3</span>
                 <span><strong>Used Devices:</strong> 0</span>
                 <span><strong>Valid Until:</strong> 2026-12-31 23:59:00</span>
                 <span><strong>Status:</strong> <span class="status-active">ACTIVE</span></span>
-                <button class="btn btn-block" onclick="toggleStatus('ALP-vincepogi')">BLOCK</button>
+                <button class="btn btn-block" onclick="toggleKeyStatus('ALP-vincepogi')">BLOCK</button>
                 <button class="btn btn-delete" onclick="deleteKey('ALP-vincepogi')">DELETE</button>
             </div>
         </div>
     </div>
 
-    <!-- HIDDEN STORAGE AT CHECKER PARA SA APP -->
-    <div id="keyChecker"></div>
-    <div id="keyStorage" style="display:none;">
+    <!-- LIHIM NA BAHAGI PARA SA APP -->
+    <div id="appResponse"></div>
+    <div id="databaseDisplay" style="display:none;">
         [{"key":"ALP-vincepogi","validUntil":"2026-12-31 23:59:00","maxDevices":3,"usedDevices":[],"active":true}]
     </div>
 
     <script>
-        let keyDB = JSON.parse(document.getElementById('keyStorage').textContent);
+        let keyDatabase = JSON.parse(document.getElementById('databaseDisplay').textContent);
 
-        // I-update ang database at display
-        function updateDB() {
-            document.getElementById('keyStorage').textContent = JSON.stringify(keyDB);
-            let list = document.getElementById('keyList');
-            list.innerHTML = "";
-            
-            keyDB.forEach(k => {
-                const isExpired = new Date(k.validUntil) < new Date();
-                const statClass = (k.active && !isExpired) ? "status-active" : "status-inactive";
-                const statText = isExpired ? "EXPIRED" : (k.active ? "ACTIVE" : "BLOCKED");
-                const btnText = (k.active && !isExpired) ? "BLOCK" : "UNBLOCK";
-                const btnClass = (k.active && !isExpired) ? "btn-block" : "btn-unblock";
+        // I-update ang control panel lang
+        function updateDatabase() {
+            let keyList = document.getElementById('keyList');
+            keyList.innerHTML = "";
+            keyDatabase.forEach(key => {
+                const isExpired = new Date(key.validUntil) < new Date();
+                const statusClass = (key.active && !isExpired) ? "status-active" : "status-inactive";
+                const statusText = isExpired ? "EXPIRED" : (key.active ? "ACTIVE" : "BLOCKED");
+                const actionBtnText = (key.active && !isExpired) ? "BLOCK" : "UNBLOCK";
+                const actionBtnClass = (key.active && !isExpired) ? "btn-block" : "btn-unblock";
 
                 let item = document.createElement('div');
                 item.className = "key-item";
                 item.innerHTML = `
-                    <span><strong>Key:</strong> ${k.key} ${isExpired ? '<span class="expired">(EXPIRED)</span>' : ''}</span>
-                    <span><strong>Max Devices:</strong> ${k.maxDevices}</span>
-                    <span><strong>Used Devices:</strong> ${k.usedDevices.length}</span>
-                    <span><strong>Valid Until:</strong> ${k.validUntil}</span>
-                    <span><strong>Status:</strong> <span class="${statClass}">${statText}</span></span>
-                    <button class="btn ${btnClass}" onclick="toggleStatus('${k.key}')">${btnText}</button>
-                    <button class="btn btn-delete" onclick="deleteKey('${k.key}')">DELETE</button>
+                    <span><strong>Key:</strong> ${key.key} ${isExpired ? '<span class="expired">(EXPIRED)</span>' : ''}</span>
+                    <span><strong>Max Devices:</strong> ${key.maxDevices}</span>
+                    <span><strong>Used Devices:</strong> ${key.usedDevices.length}</span>
+                    <span><strong>Valid Until:</strong> ${key.validUntil}</span>
+                    <span><strong>Status:</strong> <span class="${statusClass}">${statusText}</span></span>
+                    <button class="btn ${actionBtnClass}" onclick="toggleKeyStatus('${key.key}')">${actionBtnText}</button>
+                    <button class="btn btn-delete" onclick="deleteKey('${key.key}')">DELETE</button>
                 `;
-                list.appendChild(item);
+                keyList.appendChild(item);
             });
+            document.getElementById('databaseDisplay').textContent = JSON.stringify(keyDatabase);
         }
 
         // Generate key
         function generateKey() {
-            const prefix = document.getElementById('keyPrefix').value;
+            const prefix = document.getElementById('keyPrefix').value.trim();
             const name = document.getElementById('keyName').value.trim();
             const fullKey = prefix + name;
-            
-            if (!name || keyDB.find(k => k.key === fullKey)) {
-                alert("Pumili ng ibang key name o hindi pwede ulitin!");
+
+            if (!name) {
+                alert("Isulat muna ang pangalan ng key!");
+                return;
+            }
+            if (keyDatabase.find(k => k.key === fullKey)) {
+                alert("Key na ito ay mayroon na!");
                 return;
             }
 
             let validUntil = new Date();
             const type = document.getElementById('validType').value;
             const len = parseInt(document.getElementById('validLength').value);
-            
             if (type === "days") validUntil.setDate(validUntil.getDate() + len);
             else if (type === "hours") validUntil.setHours(validUntil.getHours() + len);
             else validUntil.setMinutes(validUntil.getMinutes() + len);
-            
-            validUntil = validUntil.toISOString().slice(0,19).replace('T',' ');
+            validUntil = validUntil.toISOString().slice(0, 19).replace('T', ' ');
 
-            keyDB.push({
+            keyDatabase.push({
                 key: fullKey,
                 validUntil: validUntil,
                 maxDevices: parseInt(document.getElementById('maxDevices').value),
@@ -135,52 +206,56 @@
                 active: true
             });
 
-            document.getElementById('genKey').textContent = `Generated Key: ${fullKey}`;
-            document.getElementById('genValid').textContent = `Valid Until: ${validUntil}`;
-            updateDB();
+            document.getElementById('generatedKeyDisplay').textContent = `Generated Key: ${fullKey}`;
+            document.getElementById('validUntilDisplay').textContent = `Valid Until: ${validUntil}`;
+            updateDatabase();
+            alert(`Key na '${fullKey}' ay handa na!`);
+            document.getElementById('keyName').value = "";
         }
 
         // Block/Unblock key
-        function toggleStatus(key) {
-            const k = keyDB.find(x => x.key === key);
-            if (k) {
-                k.active = !k.active;
-                updateDB();
-                alert(k.active ? "Key na-unblock na!" : "Key na-block na!");
+        function toggleKeyStatus(keyToToggle) {
+            const key = keyDatabase.find(k => k.key === keyToToggle);
+            if (key) {
+                key.active = !key.active;
+                alert(key.active ? "Key na-unblock na!" : "Key na-block na!");
+                updateDatabase();
             }
         }
 
         // Delete key
-        function deleteKey(key) {
-            if (confirm("Sigurado kang tanggalin?")) {
-                keyDB = keyDB.filter(k => k.key !== key);
-                updateDB();
+        function deleteKey(keyToDelete) {
+            if (confirm(`Tanggalin ba ang key na '${keyToDelete}'?`)) {
+                keyDatabase = keyDatabase.filter(k => k.key !== keyToDelete);
+                alert(`Key na '${keyToDelete}' ay naalis!`);
+                updateDatabase();
             }
         }
 
-        // CHECK KEY PARA SA APP
+        // Sagutin lang ang app request - HINDI NA MAGBABAGO NG CONTROL PANEL!
+        function checkKeyFromApp(key, uid) {
+            const keyData = keyDatabase.find(k => k.key === key);
+            if (!keyData) return "INVALID KEY";
+            if (new Date(keyData.validUntil) < new Date()) return "KEY EXPIRED";
+            if (!keyData.active) return "KEY BLOCKED";
+            if (keyData.usedDevices.length >= keyData.maxDevices) return "DEVICE LIMIT REACHED";
+            if (!keyData.usedDevices.includes(uid)) keyData.usedDevices.push(uid);
+            updateDatabase();
+            return "LOGIN SUCCESS";
+        }
+
+        // I-process lang ang app request kapag meron talagang key at uid
         window.onload = function() {
-            const params = new URLSearchParams(window.location.search);
-            const key = params.get('key');
-            const uid = params.get('uid');
-
+            const urlParams = new URLSearchParams(window.location.search);
+            const key = urlParams.get('key');
+            const uid = urlParams.get('uid');
+            
             if (key && uid) {
-                const k = keyDB.find(x => x.key === key);
-                let res = "INVALID KEY";
-
-                if (k) {
-                    if (new Date(k.validUntil) < new Date()) res = "KEY EXPIRED";
-                    else if (!k.active) res = "KEY BLOCKED";
-                    else if (k.usedDevices.length >= k.maxDevices) res = "DEVICE LIMIT REACHED";
-                    else {
-                        if (!k.usedDevices.includes(uid)) k.usedDevices.push(uid);
-                        res = "LOGIN SUCCESS";
-                        updateDB();
-                    }
-                }
-
-                document.getElementById('keyChecker').textContent = res;
-                document.body.innerHTML = document.getElementById('keyChecker').textContent;
+                const response = checkKeyFromApp(key, uid);
+                document.getElementById('appResponse').textContent = response;
+                // Ibibigay lang ang sagot sa app, hindi mababago ang display
+                document.write(document.getElementById('appResponse').textContent);
+                document.close();
             }
         };
     </script>
