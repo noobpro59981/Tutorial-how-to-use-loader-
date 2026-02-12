@@ -1,7 +1,7 @@
 <!DOCTYPE html>
-<html>
+<html lang="fil">
 <head>
-    <title>ALP KEY CONTROL PANEL</title>
+    <title>ALP KEY CONTROL PANEL - https://noobpro59981.github.io/Tutorial-how-to-use-loader-/</title>
     <style>
         * {
             margin: 0;
@@ -55,8 +55,11 @@
             cursor: pointer;
             font-weight: bold;
             margin-top: 10px;
+            margin-right: 10px;
         }
         .btn-delete { background: #ff4444; color: #fff; }
+        .btn-block { background: #ffaa00; color: #fff; }
+        .btn-unblock { background: #00ff9d; color: #1a1a1a; }
         .key-list {
             margin-top: 15px;
             padding: 10px;
@@ -69,131 +72,217 @@
             margin: 5px 0;
             background: #2d2d2d;
             border-radius: 3px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+            align-items: center;
         }
         .status-active { color: #00ff9d; }
         .status-inactive { color: #ff4444; }
+        .expired { color: #ff4444; font-weight: bold; }
         #databaseDisplay {
-            display: none; /* HIDDEN FOR INJECTOR TO READ */
+            display: none; /* Para mabasa ng app na may login code */
+        }
+        .generated-key-output {
+            margin-top: 10px;
+            padding: 8px;
+            background: #1a1a1a;
+            border: 1px solid #00ccff;
+            border-radius: 5px;
+            color: #00ff9d;
         }
     </style>
 </head>
 <body>
-    <h1>🔐 ALP ONLINE KEY DATABASE</h1>
+    <h1>🔐 ALP KEY CONTROL PANEL</h1>
+    <p style="text-align:center; color:#00ccff;">Target Website: https://noobpro59981.github.io/Tutorial-how-to-use-loader-/</p>
 
-    <!-- KEY GENERATOR SECTION -->
+    <!-- KEY GENERATOR SECTION (Customizable tulad ng hiling mo) -->
     <div class="section">
         <div class="section-title">✨ GENERATE NEW KEY</div>
-        <label for="keyName">Key Name (Hal: vincepogi, ALP-VIP)</label>
-        <input type="text" id="keyName" placeholder="Isulat ang eksaktong pangalan ng key">
+        <label for="keyPrefix">Key Prefix (Hal: APP-, PROD-)</label>
+        <input type="text" id="keyPrefix" placeholder="Optional prefix" value="ALP-">
+
+        <label for="keyName">Key Identifier (Hal: vincepogi, VIP-001)</label>
+        <input type="text" id="keyName" placeholder="Isulat ang identifier ng key" required>
 
         <label for="maxDevices">Max Devices Allowed</label>
         <input type="number" id="maxDevices" min="1" value="3">
 
-        <label for="validDays">Validity (Days)</label>
-        <input type="number" id="validDays" min="1" value="30">
+        <label for="validType">Validity Type</label>
+        <select id="validType" style="width:100%; padding:8px; background:#1a1a1a; color:#fff; border:1px solid #00ff9d; border-radius:5px; margin-bottom:5px;">
+            <option value="days">Days</option>
+            <option value="hours">Hours</option>
+            <option value="minutes">Minutes</option>
+        </select>
 
-        <button class="btn" onclick="generateKey()">GENERATE KEY</button>
+        <label for="validLength">Validity Length</label>
+        <input type="number" id="validLength" min="1" value="30">
+
+        <button class="btn" onclick="generateKey()">GENERATE NEW KEY</button>
+        <div class="generated-key-output" id="generatedKeyDisplay">-- Wala pa pong key na nabuo --</div>
+        <div class="generated-key-output" id="validUntilDisplay">-- Wala pa --</div>
     </div>
 
     <!-- KEY DATABASE DISPLAY -->
     <div class="section">
         <div class="section-title">📋 ONLINE KEY DATABASE</div>
         <div class="key-list" id="keyList">
-            <!-- DEFAULT KEY: vincepogi -->
+            <!-- DEFAULT KEY -->
             <div class="key-item">
-                <strong>Key:</strong> vincepogi | 
-                <strong>Max Devices:</strong> 3 | 
-                <strong>Valid Until:</strong> 2026-12-31 23:59:00 | 
-                <strong>Status:</strong> <span class="status-active">ACTIVE</span>
-                <button class="btn btn-delete" onclick="deleteKey('vincepogi')">DELETE</button>
+                <span><strong>Key:</strong> ALP-vincepogi</span>
+                <span><strong>Max Devices:</strong> 3</span>
+                <span><strong>Used Devices:</strong> 0</span>
+                <span><strong>Valid Until:</strong> 2026-12-31 23:59:00</span>
+                <span><strong>Status:</strong> <span class="status-active">ACTIVE</span></span>
+                <button class="btn btn-block" onclick="toggleKeyStatus('ALP-vincepogi')">BLOCK</button>
+                <button class="btn btn-delete" onclick="deleteKey('ALP-vincepogi')">DELETE</button>
             </div>
         </div>
     </div>
 
-    <!-- HIDDEN DATABASE FOR INJECTOR -->
+    <!-- HIDDEN DATABASE - Para mabasa ng login function ng app -->
     <div id="databaseDisplay">
         [
             {
-                "key": "vincepogi",
+                "key": "ALP-vincepogi",
                 "validUntil": "2026-12-31 23:59:00",
                 "maxDevices": 3,
-                "usedDevices": 0,
+                "usedDevices": [],
                 "active": true
             }
         ]
     </div>
 
+    <!-- KEY CHECK ENDPOINT - Konekta sa iyong app's login1 function -->
     <script>
-        // LOAD DATABASE FROM HIDDEN DIV
+        // I-load ang database mula sa hidden div
         let keyDatabase = JSON.parse(document.getElementById('databaseDisplay').textContent);
+        const TARGET_WEBSITE = "https://noobpro59981.github.io/Tutorial-how-to-use-loader-/";
 
-        // UPDATE DISPLAY & DATABASE
+        // I-update ang display at database
         function updateDatabase() {
-            // UPDATE KEY LIST UI
+            // I-update ang UI ng key list
             let keyList = document.getElementById('keyList');
             keyList.innerHTML = "";
             keyDatabase.forEach(key => {
+                // Check kung expired na ang key
+                const isExpired = new Date(key.validUntil) < new Date();
+                const statusClass = (key.active && !isExpired) ? "status-active" : "status-inactive";
+                const statusText = isExpired ? "EXPIRED" : (key.active ? "ACTIVE" : "BLOCKED");
+                const actionBtnText = (key.active && !isExpired) ? "BLOCK" : "UNBLOCK";
+                const actionBtnClass = (key.active && !isExpired) ? "btn-block" : "btn-unblock";
+
                 let item = document.createElement('div');
                 item.className = "key-item";
                 item.innerHTML = `
-                    <strong>Key:</strong> ${key.key} | 
-                    <strong>Max Devices:</strong> ${key.maxDevices} | 
-                    <strong>Valid Until:</strong> ${key.validUntil} | 
-                    <strong>Status:</strong> <span class="${key.active ? 'status-active' : 'status-inactive'}">${key.active ? 'ACTIVE' : 'INACTIVE'}</span>
+                    <span><strong>Key:</strong> ${key.key} ${isExpired ? '<span class="expired">(EXPIRED)</span>' : ''}</span>
+                    <span><strong>Max Devices:</strong> ${key.maxDevices}</span>
+                    <span><strong>Used Devices:</strong> ${key.usedDevices.length}</span>
+                    <span><strong>Valid Until:</strong> ${key.validUntil}</span>
+                    <span><strong>Status:</strong> <span class="${statusClass}">${statusText}</span></span>
+                    <button class="btn ${actionBtnClass}" onclick="toggleKeyStatus('${key.key}')">${actionBtnText}</button>
                     <button class="btn btn-delete" onclick="deleteKey('${key.key}')">DELETE</button>
                 `;
                 keyList.appendChild(item);
             });
 
-            // UPDATE HIDDEN DATABASE
+            // I-update ang hidden database
             document.getElementById('databaseDisplay').textContent = JSON.stringify(keyDatabase);
         }
 
-        // GENERATE NEW KEY
+        // Generate bagong key
         function generateKey() {
-            let keyName = document.getElementById('keyName').value.trim();
-            let maxDevices = parseInt(document.getElementById('maxDevices').value) || 1;
-            let validDays = parseInt(document.getElementById('validDays').value) || 30;
+            const prefix = document.getElementById('keyPrefix').value.trim();
+            const name = document.getElementById('keyName').value.trim();
+            const maxDevices = parseInt(document.getElementById('maxDevices').value) || 1;
+            const validType = document.getElementById('validType').value;
+            const validLength = parseInt(document.getElementById('validLength').value) || 1;
 
-            if (!keyName) {
-                alert("Isulat muna ang pangalan ng key!");
+            if (!name) {
+                alert("Isulat muna ang identifier ng key!");
                 return;
             }
 
-            // CHECK IF KEY ALREADY EXISTS
-            let existingKey = keyDatabase.find(k => k.key === keyName);
+            const fullKey = prefix + name;
+            // Check kung mayroon nang ganitong key
+            const existingKey = keyDatabase.find(k => k.key === fullKey);
             if (existingKey) {
                 alert("Key na ito ay mayroon na sa database!");
                 return;
             }
 
-            // CALCULATE VALID UNTIL
+            // Kalkulahin ang expiration date
             let validUntil = new Date();
-            validUntil.setDate(validUntil.getDate() + validDays);
+            if (validType === "days") validUntil.setDate(validUntil.getDate() + validLength);
+            else if (validType === "hours") validUntil.setHours(validUntil.getHours() + validLength);
+            else if (validType === "minutes") validUntil.setMinutes(validUntil.getMinutes() + validLength);
             validUntil = validUntil.toISOString().slice(0, 19).replace('T', ' ');
 
-            // ADD TO DATABASE
+            // I-add sa database
             keyDatabase.push({
-                key: keyName,
+                key: fullKey,
                 validUntil: validUntil,
                 maxDevices: maxDevices,
-                usedDevices: 0,
+                usedDevices: [],
                 active: true
             });
 
+            // I-update ang display ng generated key
+            document.getElementById('generatedKeyDisplay').textContent = `Generated Key: ${fullKey}`;
+            document.getElementById('validUntilDisplay').textContent = `Valid Until: ${validUntil}`;
+
             updateDatabase();
-            alert("Key na '" + keyName + "' ay naidagdag sa database!");
+            alert(`Key na '${fullKey}' ay naidagdag!`);
             document.getElementById('keyName').value = "";
         }
 
-        // DELETE KEY
-        function deleteKey(keyToDelete) {
-            if (!confirm("Sigurado ka bang gusto mong tanggalin ang key na '" + keyToDelete + "'?")) return;
-            keyDatabase = keyDatabase.filter(k => k.key !== keyToDelete);
+        // Block/Unblock key
+        function toggleKeyStatus(keyToToggle) {
+            const key = keyDatabase.find(k => k.key === keyToToggle);
+            if (!key) return;
+            
+            key.active = !key.active;
+            const action = key.active ? "binuksan muli" : "binlock";
+            alert(`Key na '${keyToToggle}' ay ${action}!`);
             updateDatabase();
-            alert("Key na '" + keyToDelete + "' ay naalis sa database!");
         }
+
+        // Delete key
+        function deleteKey(keyToDelete) {
+            if (!confirm(`Sigurado ka bang gusto mong tanggalin ang key na '${keyToDelete}'?`)) return;
+            keyDatabase = keyDatabase.filter(k => k.key !== keyToDelete);
+            alert(`Key na '${keyToDelete}' ay naalis!`);
+            updateDatabase();
+        }
+
+        // ENDPOINT PARA SA APP'S LOGIN FUNCTION
+        // Kapag ang app ay nag-send ng request dito gamit ang URL na may key at uid, magre-response ito ng tamang mensahe
+        function checkKeyFromApp(key, uid) {
+            const keyData = keyDatabase.find(k => k.key === key);
+            if (!keyData) return "INVALID KEY";
+            
+            const isExpired = new Date(keyData.validUntil) < new Date();
+            if (isExpired) return "KEY EXPIRED";
+            if (!keyData.active) return "KEY BLOCKED";
+            if (keyData.usedDevices.length >= keyData.maxDevices) return "DEVICE LIMIT REACHED";
+            if (!keyData.usedDevices.includes(uid)) keyData.usedDevices.push(uid);
+            
+            updateDatabase();
+            return "LOGIN SUCCESS";
+        }
+
+        // I-parse ang URL parameters para sa app's request
+        window.onload = function() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const key = urlParams.get('key');
+            const uid = urlParams.get('uid');
+            
+            if (key && uid) {
+                const response = checkKeyFromApp(key, uid);
+                document.write(response); // Ibibigay ang sagot sa app
+            }
+        };
     </script>
 </body>
 </html>
-
